@@ -1,28 +1,38 @@
-const walkCanvas = document.getElementById("walkCanvas");
+const canvas = document.getElementById("walkCanvas");
 const graphCanvas = document.getElementById("graphCanvas");
 
-const walkCtx = walkCanvas.getContext("2d");
+const ctx = canvas.getContext("2d");
 const graphCtx = graphCanvas.getContext("2d");
 
-const WIDTH = walkCanvas.width;
-const HEIGHT = walkCanvas.height;
+const WIDTH = canvas.width;
+const HEIGHT = canvas.height;
 
 // ============================================================
-// SIMULATION PARAMETERS
+// USER SETTINGS
 // ============================================================
 
-let N_WALKERS = 15;
-let SIGMA = 1.0;
+let numberOfWalkers = 15;
+let sigma = 1.0;
 
-// One simulation second corresponds to one real second.
 const MAX_TIME = 60;
 
-// Size of the visible world.
-const WORLD_SIZE = 15;
+// ============================================================
+// SIMULATION SETTINGS
+// ============================================================
+
+// Physics timestep.
+// The simulation advances in these small increments.
+const DT = 0.01;
+
+// 1.0 means real-time.
+// 2.0 would make it twice as fast.
+const SPEED = 1.0;
 
 // ============================================================
-// COLORS
+// DISPLAY SETTINGS
 // ============================================================
+
+const WORLD_SIZE = 15;
 
 const colors = [
 "#ef4444",
@@ -54,8 +64,7 @@ const colors = [
 "#34d399",
 "#fbbf24",
 "#22d3ee",
-"#818cf8",
-"#e879f9",
+"#c084fc",
 "#fb7185",
 "#4ade80",
 "#facc15",
@@ -67,29 +76,31 @@ const colors = [
 "#34d399",
 "#fbbf24",
 "#22d3ee",
-"#c084fc",
+"#818cf8",
+"#e879f9",
 "#fb7185",
 "#4ade80",
 "#facc15",
 "#2dd4bf",
 "#60a5fa",
-"#a78bfa",
-"#fb923c"
+"#a78bfa"
 ];
 
 // ============================================================
 // SIMULATION STATE
 // ============================================================
 
-let positions = [];
-let trails = [];
+let walkers = [];
 
-let meanDistances = [];
+let simulationTime = 0;
 
 let running = false;
 
-let simulationTime = 0;
-let lastTimestamp = null;
+let lastFrameTime = null;
+
+let accumulatedTime = 0;
+
+let history = [];
 
 // ============================================================
 // GAUSSIAN RANDOM NUMBER
@@ -116,6 +127,32 @@ return Math.sqrt(-2 * Math.log(u))
 }
 
 // ============================================================
+// CREATE WALKERS
+// ============================================================
+
+function createWalkers() {
+
+```
+walkers = [];
+
+for (let i = 0; i < numberOfWalkers; i++) {
+
+    walkers.push({
+        x: 0,
+        y: 0,
+        trail: [
+            {
+                x: 0,
+                y: 0
+            }
+        ]
+    });
+}
+```
+
+}
+
+// ============================================================
 // RESET
 // ============================================================
 
@@ -125,113 +162,107 @@ function resetSimulation() {
 running = false;
 
 simulationTime = 0;
-lastTimestamp = null;
 
-positions = [];
-trails = [];
-meanDistances = [];
+lastFrameTime = null;
 
-for (let i = 0; i < N_WALKERS; i++) {
+accumulatedTime = 0;
 
-    positions.push({
-        x: 0,
-        y: 0
-    });
+history = [];
 
-    trails.push([
-        {
-            x: 0,
-            y: 0
-        }
-    ]);
-}
+createWalkers();
 
 draw();
+
+updateDisplayedValues();
 ```
 
 }
 
 // ============================================================
-// ADVANCE THE SIMULATION
+// ONE PHYSICS STEP
 // ============================================================
 
-function advanceSimulation(dt) {
+function physicsStep() {
 
 ```
-if (dt <= 0) {
-    return;
-}
-
 /*
  * For a continuous Gaussian random walk:
  *
- * dx ~ N(0, sigma^2 dt)
- * dy ~ N(0, sigma^2 dt)
+ * dx = sigma * sqrt(dt) * N(0,1)
+ * dy = sigma * sqrt(dt) * N(0,1)
  *
  * Therefore:
  *
- * dx = sigma * sqrt(dt) * Gaussian
+ * Var(x) = sigma^2 * t
+ * Var(y) = sigma^2 * t
  */
 
-for (let i = 0; i < N_WALKERS; i++) {
+const stepSize =
+    sigma * Math.sqrt(DT);
 
-    const dx =
-        SIGMA *
-        Math.sqrt(dt) *
-        gaussianRandom();
-
-    const dy =
-        SIGMA *
-        Math.sqrt(dt) *
-        gaussianRandom();
-
-    positions[i].x += dx;
-    positions[i].y += dy;
-
-    trails[i].push({
-        x: positions[i].x,
-        y: positions[i].y
-    });
-}
-
-simulationTime += dt;
-
-calculateMeanDistance();
-```
-
-}
-
-// ============================================================
-// CALCULATE MEAN DISTANCE
-// ============================================================
-
-function calculateMeanDistance() {
-
-```
 let totalDistance = 0;
 
-for (let i = 0; i < N_WALKERS; i++) {
+for (let i = 0; i < walkers.length; i++) {
 
-    const x = positions[i].x;
-    const y = positions[i].y;
+    const walker = walkers[i];
 
-    totalDistance +=
-        Math.sqrt(x * x + y * y);
+    walker.x +=
+        stepSize * gaussianRandom();
+
+    walker.y +=
+        stepSize * gaussianRandom();
+
+    walker.trail.push({
+        x: walker.x,
+        y: walker.y
+    });
+
+    const distance =
+        Math.sqrt(
+            walker.x * walker.x
+            +
+            walker.y * walker.y
+        );
+
+    totalDistance += distance;
 }
 
-const mean =
-    totalDistance / N_WALKERS;
+const meanDistance =
+    totalDistance / walkers.length;
 
-meanDistances.push({
+simulationTime += DT;
+
+history.push({
     time: simulationTime,
-    value: mean
+    value: meanDistance
 });
 ```
 
 }
 
 // ============================================================
-// COORDINATE TRANSFORMATION
+// THEORETICAL EXPECTATION
+// ============================================================
+
+function theoreticalMeanDistance(t) {
+
+```
+/*
+ * For a 2D Gaussian random walk:
+ *
+ * <r(t)> = sigma * sqrt(pi*t/2)
+ */
+
+return sigma *
+    Math.sqrt(
+        Math.PI * t / 2
+    );
+```
+
+}
+
+// ============================================================
+// WORLD → CANVAS
 // ============================================================
 
 function worldToCanvas(x, y) {
@@ -255,9 +286,9 @@ return {
 function drawWalkers() {
 
 ```
-walkCtx.fillStyle = "#1f2937";
+ctx.fillStyle = "#1f2937";
 
-walkCtx.fillRect(
+ctx.fillRect(
     0,
     0,
     WIDTH,
@@ -267,8 +298,8 @@ walkCtx.fillRect(
 
 // Grid
 
-walkCtx.strokeStyle = "#374151";
-walkCtx.lineWidth = 1;
+ctx.strokeStyle = "#374151";
+ctx.lineWidth = 1;
 
 const gridSpacing = 50;
 
@@ -278,10 +309,12 @@ for (
     x += gridSpacing
 ) {
 
-    walkCtx.beginPath();
-    walkCtx.moveTo(x, 0);
-    walkCtx.lineTo(x, HEIGHT);
-    walkCtx.stroke();
+    ctx.beginPath();
+
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, HEIGHT);
+
+    ctx.stroke();
 }
 
 for (
@@ -290,89 +323,95 @@ for (
     y += gridSpacing
 ) {
 
-    walkCtx.beginPath();
-    walkCtx.moveTo(0, y);
-    walkCtx.lineTo(WIDTH, y);
-    walkCtx.stroke();
+    ctx.beginPath();
+
+    ctx.moveTo(0, y);
+    ctx.lineTo(WIDTH, y);
+
+    ctx.stroke();
 }
 
 
 // Axes
 
-walkCtx.strokeStyle = "#9ca3af";
-walkCtx.lineWidth = 1;
+ctx.strokeStyle = "#9ca3af";
+ctx.lineWidth = 1;
 
-walkCtx.beginPath();
+ctx.beginPath();
 
-walkCtx.moveTo(
+ctx.moveTo(
     WIDTH / 2,
     0
 );
 
-walkCtx.lineTo(
+ctx.lineTo(
     WIDTH / 2,
     HEIGHT
 );
 
-walkCtx.moveTo(
+ctx.moveTo(
     0,
     HEIGHT / 2
 );
 
-walkCtx.lineTo(
+ctx.lineTo(
     WIDTH,
     HEIGHT / 2
 );
 
-walkCtx.stroke();
+ctx.stroke();
 
 
-// Trails
+// Walker trails
 
-for (let i = 0; i < N_WALKERS; i++) {
+for (let i = 0; i < walkers.length; i++) {
 
-    const trail = trails[i];
+    const walker = walkers[i];
 
-    if (trail.length < 2) {
+    if (walker.trail.length < 2) {
         continue;
     }
 
-    walkCtx.strokeStyle =
+    ctx.strokeStyle =
         colors[i % colors.length];
 
-    walkCtx.lineWidth = 1.2;
+    ctx.lineWidth = 1.2;
 
-    walkCtx.globalAlpha = 0.55;
+    ctx.globalAlpha = 0.55;
 
-    walkCtx.beginPath();
+    ctx.beginPath();
 
-    for (let j = 0; j < trail.length; j++) {
+    for (
+        let j = 0;
+        j < walker.trail.length;
+        j++
+    ) {
 
         const point =
             worldToCanvas(
-                trail[j].x,
-                trail[j].y
+                walker.trail[j].x,
+                walker.trail[j].y
             );
 
         if (j === 0) {
 
-            walkCtx.moveTo(
+            ctx.moveTo(
                 point.x,
                 point.y
             );
 
         } else {
 
-            walkCtx.lineTo(
+            ctx.lineTo(
                 point.x,
                 point.y
             );
         }
     }
 
-    walkCtx.stroke();
+    ctx.stroke();
 
-    walkCtx.globalAlpha = 1;
+    ctx.globalAlpha = 1;
 }
 
 
@@ -381,50 +420,50 @@ for (let i = 0; i < N_WALKERS; i++) {
 const origin =
     worldToCanvas(0, 0);
 
-walkCtx.strokeStyle = "white";
-walkCtx.lineWidth = 2;
+ctx.strokeStyle = "white";
+ctx.lineWidth = 2;
 
-walkCtx.beginPath();
+ctx.beginPath();
 
-walkCtx.moveTo(
+ctx.moveTo(
     origin.x - 7,
     origin.y
 );
 
-walkCtx.lineTo(
+ctx.lineTo(
     origin.x + 7,
     origin.y
 );
 
-walkCtx.moveTo(
+ctx.moveTo(
     origin.x,
     origin.y - 7
 );
 
-walkCtx.lineTo(
+ctx.lineTo(
     origin.x,
     origin.y + 7
 );
 
-walkCtx.stroke();
+ctx.stroke();
 
 
-// Current positions
+// Current walker positions
 
-for (let i = 0; i < N_WALKERS; i++) {
+for (let i = 0; i < walkers.length; i++) {
 
     const point =
         worldToCanvas(
-            positions[i].x,
-            positions[i].y
+            walkers[i].x,
+            walkers[i].y
         );
 
-    walkCtx.fillStyle =
+    ctx.fillStyle =
         colors[i % colors.length];
 
-    walkCtx.beginPath();
+    ctx.beginPath();
 
-    walkCtx.arc(
+    ctx.arc(
         point.x,
         point.y,
         3,
@@ -432,47 +471,26 @@ for (let i = 0; i < N_WALKERS; i++) {
         2 * Math.PI
     );
 
-    walkCtx.fill();
+    ctx.fill();
 }
 
 
-// Axis labels
+// Labels
 
-walkCtx.fillStyle = "#d1d5db";
-walkCtx.font = "14px Arial";
+ctx.fillStyle = "#d1d5db";
+ctx.font = "14px Arial";
 
-walkCtx.fillText(
+ctx.fillText(
     "y",
     WIDTH / 2 + 8,
     20
 );
 
-walkCtx.fillText(
+ctx.fillText(
     "x",
     WIDTH - 20,
     HEIGHT / 2 - 8
 );
-```
-
-}
-
-// ============================================================
-// THEORETICAL EXPECTATION VALUE
-// ============================================================
-
-function theoreticalDistance(t) {
-
-```
-/*
- * For independent Gaussian x and y coordinates:
- *
- * <r> = sigma * sqrt(pi * t / 2)
- */
-
-return SIGMA *
-    Math.sqrt(
-        Math.PI * t / 2
-    );
 ```
 
 }
@@ -546,15 +564,14 @@ graphCtx.fillText(
 
 graphCtx.fillText(
     "Time (s)",
-    WIDTH - margin - 50,
+    WIDTH - margin - 55,
     HEIGHT - 20
 );
 
 
-const maxTime = MAX_TIME;
-
 const maxDistance =
-    theoreticalDistance(maxTime) * 1.15;
+    theoreticalMeanDistance(MAX_TIME)
+    * 1.15;
 
 
 // Theoretical curve
@@ -574,17 +591,18 @@ for (
 
     const t =
         (px / graphWidth)
-        * maxTime;
+        * MAX_TIME;
 
     const value =
-        theoreticalDistance(t);
+        theoreticalMeanDistance(t);
 
     const x =
         margin + px;
 
     const y =
         HEIGHT - margin
-        - (value / maxDistance)
+        -
+        (value / maxDistance)
         * graphHeight;
 
     if (px === 0) {
@@ -604,30 +622,27 @@ graphCtx.setLineDash([]);
 
 // Simulation curve
 
-if (meanDistances.length > 1) {
+if (history.length > 0) {
 
     graphCtx.strokeStyle = "#60a5fa";
     graphCtx.lineWidth = 2;
 
     graphCtx.beginPath();
 
-    for (
-        let i = 0;
-        i < meanDistances.length;
-        i++
-    ) {
+    for (let i = 0; i < history.length; i++) {
 
-        const t =
-            meanDistances[i].time;
+        const point = history[i];
 
         const x =
             margin
-            + (t / maxTime)
+            +
+            (point.time / MAX_TIME)
             * graphWidth;
 
         const y =
             HEIGHT - margin
-            - (meanDistances[i].value / maxDistance)
+            -
+            (point.value / maxDistance)
             * graphHeight;
 
         if (i === 0) {
@@ -703,17 +718,33 @@ function draw() {
 
 ```
 drawWalkers();
+
 drawGraph();
 
+updateDisplayedValues();
+```
+
+}
+
+// ============================================================
+// UPDATE TEXT
+// ============================================================
+
+function updateDisplayedValues() {
+
+```
 document.getElementById(
     "timeDisplay"
 ).textContent =
     simulationTime.toFixed(2);
 
-const mean =
-    meanDistances.length > 0
-    ? meanDistances[meanDistances.length - 1].value
-    : 0;
+let mean = 0;
+
+if (history.length > 0) {
+
+    mean =
+        history[history.length - 1].value;
+}
 
 document.getElementById(
     "meanDisplay"
@@ -727,61 +758,75 @@ document.getElementById(
 // ANIMATION LOOP
 // ============================================================
 
-function animate(timestamp) {
+function animationLoop(timestamp) {
 
 ```
 if (!running) {
     return;
 }
 
-if (lastTimestamp === null) {
 
-    lastTimestamp = timestamp;
+if (lastFrameTime === null) {
+
+    lastFrameTime = timestamp;
 
 } else {
 
     /*
-     * Convert milliseconds to seconds.
-     *
-     * The browser may call this function 60 times per
-     * second, but the simulation itself advances according
-     * to actual elapsed time.
+     * Real elapsed time in seconds.
      */
 
-    let dt =
-        (timestamp - lastTimestamp)
+    const elapsed =
+        (timestamp - lastFrameTime)
         / 1000;
 
-    lastTimestamp = timestamp;
+    lastFrameTime = timestamp;
 
 
-    // Protect against a huge jump after switching tabs.
+    /*
+     * Add real elapsed time to the simulation clock.
+     */
 
-    dt = Math.min(dt, 0.1);
+    accumulatedTime +=
+        elapsed * SPEED;
 
-    advanceSimulation(dt);
+
+    /*
+     * Run physics steps until the simulation
+     * catches up with real time.
+     */
+
+    while (
+        accumulatedTime >= DT
+        &&
+        simulationTime < MAX_TIME
+    ) {
+
+        physicsStep();
+
+        accumulatedTime -= DT;
+    }
 }
+
 
 draw();
 
+
 if (simulationTime >= MAX_TIME) {
 
-    simulationTime = MAX_TIME;
-
     running = false;
-
-    draw();
 
     return;
 }
 
-requestAnimationFrame(animate);
+
+requestAnimationFrame(animationLoop);
 ```
 
 }
 
 // ============================================================
-// BUTTONS
+// START BUTTON
 // ============================================================
 
 document
@@ -790,6 +835,7 @@ document
 
 ```
     if (simulationTime >= MAX_TIME) {
+
         resetSimulation();
     }
 
@@ -797,12 +843,18 @@ document
 
         running = true;
 
-        lastTimestamp = null;
+        lastFrameTime = null;
 
-        requestAnimationFrame(animate);
+        requestAnimationFrame(
+            animationLoop
+        );
     }
 });
 ```
+
+// ============================================================
+// PAUSE BUTTON
+// ============================================================
 
 document
 .getElementById("pauseButton")
@@ -810,9 +862,14 @@ document
 
 ```
     running = false;
-    lastTimestamp = null;
+
+    lastFrameTime = null;
 });
 ```
+
+// ============================================================
+// RESET BUTTON
+// ============================================================
 
 document
 .getElementById("resetButton")
@@ -833,16 +890,22 @@ document.getElementById("walkerSlider");
 const walkerValue =
 document.getElementById("walkerValue");
 
+walkerSlider.value =
+numberOfWalkers;
+
+walkerValue.textContent =
+numberOfWalkers;
+
 walkerSlider.addEventListener(
 "input",
 () => {
 
 ```
-    N_WALKERS =
+    numberOfWalkers =
         Number(walkerSlider.value);
 
     walkerValue.textContent =
-        N_WALKERS;
+        numberOfWalkers;
 }
 ```
 
@@ -869,16 +932,22 @@ document.getElementById("sigmaSlider");
 const sigmaValue =
 document.getElementById("sigmaValue");
 
+sigmaSlider.value =
+sigma;
+
+sigmaValue.textContent =
+sigma.toFixed(1);
+
 sigmaSlider.addEventListener(
 "input",
 () => {
 
 ```
-    SIGMA =
+    sigma =
         Number(sigmaSlider.value);
 
     sigmaValue.textContent =
-        SIGMA.toFixed(1);
+        sigma.toFixed(1);
 
     draw();
 }
@@ -901,13 +970,4 @@ sigmaSlider.addEventListener(
 // INITIALIZE
 // ============================================================
 
-walkerValue.textContent =
-N_WALKERS;
-
-sigmaValue.textContent =
-SIGMA.toFixed(1);
-
 resetSimulation();
-
-```
-```
