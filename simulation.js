@@ -8,7 +8,7 @@ const WIDTH = walkCanvas.width;
 const HEIGHT = walkCanvas.height;
 
 
-let N_WALKERS = 15;
+let N_WALKERS = 10;
 let SIGMA = 1.0;
 
 const MAX_TIME = 60;
