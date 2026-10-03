@@ -59,7 +59,6 @@ const colors = [
 
 function gaussianRandom() {
 
-```
 let u = 0;
 let v = 0;
 
@@ -73,7 +72,7 @@ while (v === 0) {
 
 return Math.sqrt(-2 * Math.log(u))
     * Math.cos(2 * Math.PI * v);
-```
+
 
 }
 
@@ -83,7 +82,7 @@ return Math.sqrt(-2 * Math.log(u))
 
 function resetSimulation() {
 
-```
+
 running = false;
 
 simulationTime = 0;
@@ -110,7 +109,7 @@ for (let i = 0; i < N_WALKERS; i++) {
 }
 
 draw();
-```
+
 
 }
 
@@ -120,7 +119,7 @@ draw();
 
 function physicsStep() {
 
-```
+
 const stepSize =
     SIGMA * Math.sqrt(DT);
 
@@ -151,7 +150,7 @@ for (let i = 0; i < N_WALKERS; i++) {
 meanDistances.push(
     totalDistance / N_WALKERS
 );
-```
+
 
 }
 
@@ -161,12 +160,12 @@ meanDistances.push(
 
 function theoreticalDistance(t) {
 
-```
+
 return SIGMA *
     Math.sqrt(
         Math.PI * t / 2
     );
-```
+
 
 }
 
@@ -178,7 +177,7 @@ const WORLD_SIZE = 15;
 
 function worldToCanvas(x, y) {
 
-```
+
 const scale =
     WIDTH / (2 * WORLD_SIZE);
 
@@ -186,7 +185,7 @@ return {
     x: WIDTH / 2 + x * scale,
     y: HEIGHT / 2 - y * scale
 };
-```
+
 
 }
 
@@ -196,7 +195,7 @@ return {
 
 function drawWalkers() {
 
-```
+ 
 walkCtx.fillStyle = "#1f2937";
 
 walkCtx.fillRect(
@@ -378,7 +377,7 @@ walkCtx.lineTo(
 );
 
 walkCtx.stroke();
-```
+ 
 
 }
 
@@ -388,7 +387,7 @@ walkCtx.stroke();
 
 function drawGraph() {
 
-```
+ 
 graphCtx.fillStyle = "#1f2937";
 
 graphCtx.fillRect(
@@ -593,7 +592,7 @@ graphCtx.fillText(
     margin + 185,
     HEIGHT - 20
 );
-```
+ 
 
 }
 
@@ -603,7 +602,7 @@ graphCtx.fillText(
 
 function draw() {
 
-```
+ 
 drawWalkers();
 
 drawGraph();
@@ -624,7 +623,7 @@ document.getElementById(
     "meanDisplay"
 ).textContent =
     mean.toFixed(3);
-```
+ 
 
 }
 
@@ -634,7 +633,7 @@ document.getElementById(
 
 function animate(timestamp) {
 
-```
+ 
 if (!running) {
     return;
 }
@@ -687,7 +686,7 @@ if (simulationTime >= MAX_TIME) {
 
 
 requestAnimationFrame(animate);
-```
+ 
 
 }
 
@@ -701,7 +700,7 @@ document
 "click",
 function () {
 
-```
+ 
         if (simulationTime >= MAX_TIME) {
 
             resetSimulation();
@@ -719,7 +718,7 @@ function () {
         }
     }
 );
-```
+ 
 
 // ============================================================
 // PAUSE
@@ -731,13 +730,13 @@ document
 "click",
 function () {
 
-```
+ 
         running = false;
 
         lastTime = null;
     }
 );
-```
+ 
 
 // ============================================================
 // RESET
@@ -749,11 +748,11 @@ document
 "click",
 function () {
 
-```
+ 
         resetSimulation();
     }
 );
-```
+ 
 
 // ============================================================
 // WALKER SLIDER
@@ -773,7 +772,7 @@ walkerSlider.addEventListener(
 "input",
 function () {
 
-```
+ 
     N_WALKERS =
         Number(this.value);
 
@@ -782,7 +781,7 @@ function () {
 
     resetSimulation();
 }
-```
+ 
 
 );
 
@@ -804,7 +803,7 @@ sigmaSlider.addEventListener(
 "input",
 function () {
 
-```
+ 
     SIGMA =
         Number(this.value);
 
@@ -813,7 +812,7 @@ function () {
 
     resetSimulation();
 }
-```
+ 
 
 );
 
