@@ -828,3 +828,4 @@ sigmaValue.textContent =
 SIGMA.toFixed(1);
 
 resetSimulation();
+alert("simulation.js reached the end");
