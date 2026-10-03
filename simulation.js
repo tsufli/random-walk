@@ -144,6 +144,7 @@ function drawWalkers() {
         HEIGHT
     );
 
+    // Grid
     walkCtx.strokeStyle = "#374151";
     walkCtx.lineWidth = 1;
 
@@ -161,7 +162,9 @@ function drawWalkers() {
         walkCtx.stroke();
     }
 
+    // Axes
     walkCtx.strokeStyle = "#9ca3af";
+    walkCtx.lineWidth = 1;
 
     walkCtx.beginPath();
 
@@ -187,50 +190,76 @@ function drawWalkers() {
 
     walkCtx.stroke();
 
+    // Walker trails
     for (let i = 0; i < N_WALKERS; i++) {
+
         if (trails[i].length < 2) {
             continue;
         }
 
-        walkCtx.strokeStyle =
-            colors[i % colors.length];
-
         walkCtx.lineWidth = 1.2;
-        walkCtx.globalAlpha = 0.5;
+        walkCtx.lineCap = "round";
+        walkCtx.lineJoin = "round";
 
-        walkCtx.beginPath();
+        const trail = trails[i];
 
-        for (let j = 0; j < trails[i].length; j++) {
-            const point = worldToCanvas(
-                trails[i][j].x,
-                trails[i][j].y
+        for (let j = 1; j < trail.length; j++) {
+
+            const progress =
+                j / (trail.length - 1);
+
+            // Old parts fade to 0, newest part reaches 0.7
+            const alpha =
+                0.05 + 0.65 * progress;
+
+            walkCtx.strokeStyle =
+                colors[i % colors.length];
+
+            walkCtx.globalAlpha = alpha;
+
+            const previous =
+                worldToCanvas(
+                    trail[j - 1].x,
+                    trail[j - 1].y
+                );
+
+            const current =
+                worldToCanvas(
+                    trail[j].x,
+                    trail[j].y
+                );
+
+            walkCtx.beginPath();
+
+            walkCtx.moveTo(
+                previous.x,
+                previous.y
             );
 
-            if (j === 0) {
-                walkCtx.moveTo(
-                    point.x,
-                    point.y
-                );
-            } else {
-                walkCtx.lineTo(
-                    point.x,
-                    point.y
-                );
-            }
+            walkCtx.lineTo(
+                current.x,
+                current.y
+            );
+
+            walkCtx.stroke();
         }
 
-        walkCtx.stroke();
         walkCtx.globalAlpha = 1;
     }
 
+    // Current positions
     for (let i = 0; i < N_WALKERS; i++) {
-        const point = worldToCanvas(
-            positions[i].x,
-            positions[i].y
-        );
+
+        const point =
+            worldToCanvas(
+                positions[i].x,
+                positions[i].y
+            );
 
         walkCtx.fillStyle =
             colors[i % colors.length];
+
+        walkCtx.globalAlpha = 1;
 
         walkCtx.beginPath();
 
@@ -245,10 +274,12 @@ function drawWalkers() {
         walkCtx.fill();
     }
 
+    // Origin
     const origin =
         worldToCanvas(0, 0);
 
     walkCtx.strokeStyle = "white";
+    walkCtx.globalAlpha = 1;
     walkCtx.lineWidth = 2;
 
     walkCtx.beginPath();
@@ -275,183 +306,6 @@ function drawWalkers() {
 
     walkCtx.stroke();
 }
-
-function drawGraph() {
-    graphCtx.fillStyle = "#1f2937";
-
-    graphCtx.fillRect(
-        0,
-        0,
-        WIDTH,
-        HEIGHT
-    );
-
-    const margin = 60;
-
-    const graphWidth =
-        WIDTH - 2 * margin;
-
-    const graphHeight =
-        HEIGHT - 2 * margin;
-
-    graphCtx.strokeStyle = "#9ca3af";
-
-    graphCtx.beginPath();
-
-    graphCtx.moveTo(
-        margin,
-        HEIGHT - margin
-    );
-
-    graphCtx.lineTo(
-        WIDTH - margin,
-        HEIGHT - margin
-    );
-
-    graphCtx.moveTo(
-        margin,
-        margin
-    );
-
-    graphCtx.lineTo(
-        margin,
-        HEIGHT - margin
-    );
-
-    graphCtx.stroke();
-
-    const maxDistance =
-        theoreticalDistance(MAX_TIME) * 1.15;
-
-    graphCtx.strokeStyle = "#ef4444";
-    graphCtx.lineWidth = 2;
-    graphCtx.setLineDash([6, 6]);
-
-    graphCtx.beginPath();
-
-    for (
-        let px = 0;
-        px <= graphWidth;
-        px += 2
-    ) {
-        const t =
-            px / graphWidth * MAX_TIME;
-
-        const value =
-            theoreticalDistance(t);
-
-        const x =
-            margin + px;
-
-        const y =
-            HEIGHT - margin -
-            value / maxDistance *
-            graphHeight;
-
-        if (px === 0) {
-            graphCtx.moveTo(x, y);
-        } else {
-            graphCtx.lineTo(x, y);
-        }
-    }
-
-    graphCtx.stroke();
-    graphCtx.setLineDash([]);
-
-    if (meanDistances.length > 1) {
-        graphCtx.strokeStyle = "#60a5fa";
-        graphCtx.lineWidth = 2;
-
-        graphCtx.beginPath();
-
-        for (
-            let i = 0;
-            i < meanDistances.length;
-            i++
-        ) {
-            const t = i * DT;
-
-            const x =
-                margin +
-                t / MAX_TIME *
-                graphWidth;
-
-            const y =
-                HEIGHT - margin -
-                meanDistances[i] /
-                maxDistance *
-                graphHeight;
-
-            if (i === 0) {
-                graphCtx.moveTo(x, y);
-            } else {
-                graphCtx.lineTo(x, y);
-            }
-        }
-
-        graphCtx.stroke();
-    }
-
-    graphCtx.fillStyle = "#f9fafb";
-    graphCtx.font = "16px Arial";
-
-    graphCtx.fillText(
-        "Mean distance",
-        margin,
-        30
-    );
-
-    graphCtx.fillText(
-        "Time (s)",
-        WIDTH - margin - 55,
-        HEIGHT - 20
-    );
-
-    graphCtx.fillStyle = "#60a5fa";
-
-    graphCtx.fillRect(
-        margin,
-        HEIGHT - 25,
-        25,
-        3
-    );
-
-    graphCtx.fillStyle = "#d1d5db";
-
-    graphCtx.fillText(
-        "Simulation",
-        margin + 35,
-        HEIGHT - 20
-    );
-
-    graphCtx.strokeStyle = "#ef4444";
-    graphCtx.setLineDash([6, 6]);
-
-    graphCtx.beginPath();
-
-    graphCtx.moveTo(
-        margin + 150,
-        HEIGHT - 23
-    );
-
-    graphCtx.lineTo(
-        margin + 175,
-        HEIGHT - 23
-    );
-
-    graphCtx.stroke();
-
-    graphCtx.setLineDash([]);
-
-    graphCtx.fillStyle = "#d1d5db";
-
-    graphCtx.fillText(
-        "Theory",
-        margin + 185,
-        HEIGHT - 20
-    );
-}
-
 function draw() {
     drawWalkers();
     drawGraph();
