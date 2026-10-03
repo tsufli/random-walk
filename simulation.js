@@ -7,7 +7,6 @@ const graphCtx = graphCanvas.getContext("2d");
 const WIDTH = walkCanvas.width;
 const HEIGHT = walkCanvas.height;
 
-alert("TEST 1");
 
 let N_WALKERS = 15;
 let SIGMA = 1.0;
@@ -43,7 +42,6 @@ const colors = [
     "#10b981"
 ];
 
-alert("TEST 2");
 
 function gaussianRandom() {
     let u = 0;
@@ -609,4 +607,3 @@ sigmaValue.textContent =
 
 resetSimulation();
 
-alert("simulation.js reached the end");
