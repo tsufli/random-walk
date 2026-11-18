@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#0b1827" />
+<meta name="description" content="An interactive 1+1D directed bond percolation epidemic model: seed growth, absorbing state, finite-density dynamics, and critical scaling." />
+<title>Directed Percolation — Interactive Lab</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+:root{color-scheme:dark;--bg:#091625;--panel:#112437;--panel2:#152c41;--line:#2a4557;--white:#eaf2f5;--dim:#9ab2c0;--red:#ff7669;--gold:#f4c37c;--mint:#70d5b2;--blue:#8da7f9;font-family:'DM Sans',sans-serif}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--white);background:var(--bg);overflow-x:hidden}button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}a{color:inherit}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #84bbff;outline-offset:3px}.topbar{height:71px;display:flex;justify-content:space-between;align-items:center;padding:0 max(4vw,22px);border-bottom:1px solid #213548;background:#0b1929}.brand{display:flex;gap:12px;align-items:center;font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em}.brand-mark{color:var(--red);font-size:31px}.muted{color:#6e8ca2}.top-links{display:flex;gap:31px;font-size:13px;color:var(--dim)}.top-links a,.references a{text-decoration:none}.top-links a:hover,.references a:hover{color:var(--red)}.top-tag{font-size:12px;color:var(--mint);border:1px solid #27554e;border-radius:50px;padding:8px 12px}main{max-width:1440px;margin:auto;padding:0 4vw}.intro{padding:76px 0 62px;background:radial-gradient(ellipse 50% 95% at 77% 50%,#173047 0%,transparent 65%)}.eyebrow{font-size:11px;font-weight:700;letter-spacing:.21em;color:var(--mint);margin:0 0 17px}h1,h2,h3,p{margin-top:0}h1,h2,h3,.critical-stat strong,.metric strong{font-family:'Space Grotesk',sans-serif}h1{font-size:clamp(44px,6.3vw,88px);letter-spacing:-.055em;line-height:1.04;font-weight:600;margin-bottom:24px}h1 em{font-style:normal;color:var(--red)}.intro-copy{color:var(--dim);font-size:17px;line-height:1.75;max-width:680px}.intro-footer{display:flex;gap:40px;align-items:center;margin-top:35px}.critical-stat{border-left:3px solid var(--red);padding-left:18px}.critical-stat span,.metric span{display:block;color:var(--dim);font-size:10px;letter-spacing:.13em;font-weight:700}.critical-stat strong{display:block;font-size:29px;letter-spacing:-.05em;margin-top:6px}.model-chip{color:#9dbbc9;font-size:12px;line-height:1.7}.live-dot{display:inline-block;background:var(--mint);height:7px;width:7px;border-radius:50%;margin-right:7px}.lab{scroll-margin-top:24px}.section-heading{display:flex;justify-content:space-between;align-items:end;gap:30px;margin:5px 0 27px}.section-heading .eyebrow{margin-bottom:9px}.section-heading h2{font-size:34px;letter-spacing:-.045em;margin:0}.section-heading>p{max-width:350px;color:var(--dim);line-height:1.7;font-size:13px;margin-bottom:3px}.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:23px}.tab{border:0;background:transparent;color:#7f9aaa;padding:18px 24px 17px;font-size:12px;white-space:nowrap;border-bottom:2px solid transparent}.tab strong{margin-left:10px;font-weight:700;font-size:14px}.tab.active{border-bottom-color:var(--red);color:var(--white);background:#12293b}.tab:hover{color:var(--white)}.lab-grid{display:grid;grid-template-columns:minmax(0,1fr) 324px;gap:19px;align-items:start}.display-column{min-width:0}.screen-head{height:47px;padding:0 16px;display:flex;justify-content:space-between;align-items:center;background:#132a3e;border:1px solid var(--line);border-bottom:0;border-radius:8px 8px 0 0}.screen-title{font-size:10px;letter-spacing:.12em;font-weight:700;color:#b6cad5;display:flex;gap:10px;align-items:center}.mini-indicator{height:8px;width:8px;background:var(--red);border-radius:2px;box-shadow:0 0 12px #ee796c9c}.regime{border-radius:40px;font-size:10px;font-weight:700;letter-spacing:.09em;padding:7px 11px}.regime.critical{color:#f4ca8c;background:#7e5d272b}.regime.sub{color:#8da7f9;background:#4e64a52b}.regime.super{color:#75e0bb;background:#36735e2b}.screen{position:relative;background:#101d2e;border:1px solid var(--line);border-top:0;overflow:hidden;aspect-ratio:401/191;display:flex;align-items:center;justify-content:center}.screen canvas{width:100%;height:100%;display:block;image-rendering:pixelated;object-fit:fill}.ruler{display:flex;justify-content:space-between;font-size:10px;color:#7392a7;letter-spacing:.13em;margin:9px 5px 20px}.transport{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.transport button{background:#1b344b;color:var(--white);padding:11px 14px;border:1px solid #2c4a60;border-radius:5px;font-size:12px;font-weight:700}.transport button:hover{background:#29475f}.transport button.primary{background:var(--red);color:#152431;border-color:var(--red);min-width:96px}.transport button.primary:hover{background:#ff9a89}.keyboard-tip{color:#7090a4;font-size:11px;margin-left:auto}.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:18px 0}.metric{background:#112437;border:1px solid #264054;border-radius:7px;padding:19px 16px}.metric strong{display:block;font-size:26px;margin-top:8px;letter-spacing:-.04em}.chart-panel{background:#112437;border:1px solid #264054;border-radius:8px;padding:20px 18px 13px}.chart-head{display:flex;justify-content:space-between;gap:10px;align-items:start}.chart-eyebrow{font-size:9px;letter-spacing:.16em;color:#87a8ba}.chart-head h3{font-size:19px;margin:7px 0 13px;letter-spacing:-.025em}.toggle{font-size:12px;color:var(--dim);display:flex;gap:8px;align-items:center;white-space:nowrap;cursor:pointer}.toggle input{accent-color:var(--red)}#timeseries{display:block;width:100%;height:auto}.chart-foot{display:flex;justify-content:space-between;align-items:start;gap:10px;color:#7797a9;font-size:11px;line-height:1.5;margin-top:9px}.guide-label{color:var(--gold)}.control-card{background:#14283a;border:1px solid #284459;border-radius:8px;padding:22px 21px}.control-head{display:flex;align-items:center;justify-content:space-between;padding-bottom:24px;border-bottom:1px solid #2a465a;font-size:11px;font-weight:700;letter-spacing:.13em}.chip{background:#243e50;color:var(--mint);padding:6px 9px;font-size:10px;border-radius:4px}.parameter-label{display:flex;justify-content:space-between;font-size:10px;color:#a7c0ce;letter-spacing:.12em;margin:29px 0 7px;font-weight:700}.parameter-label span{font-size:16px;text-transform:none}.p-output{display:flex;align-items:baseline;gap:12px}.p-output output{font-size:40px;line-height:1.3;font-family:'Space Grotesk',sans-serif;font-weight:600;letter-spacing:-.05em;color:var(--white)}.p-output>span{font-size:11px;color:#7b9eb1}input[type=range]{width:100%;accent-color:var(--red);cursor:pointer;display:block;margin:18px 0 6px}.slider-limits{display:flex;justify-content:space-between;font-size:10px;color:#7698ad}.preset-label{color:#a7c0ce;font-weight:700;letter-spacing:.12em;font-size:10px;margin:31px 0 11px}.presets{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.presets button{background:#203b50;color:#b5cad3;border:1px solid #355267;border-radius:5px;font-size:11px;font-weight:700;padding:11px 3px}.presets button small{display:block;font-weight:400;font-size:11px;color:#9bb6c4;margin-top:4px}.presets button.selected{color:var(--red);border-color:var(--red);background:#502e34}.rule-box{background:#0e2030;border:1px solid #223e51;border-radius:7px;padding:17px 15px;margin-top:25px}.rule-tag{font-size:10px;letter-spacing:.14em;color:var(--mint);font-weight:700}.rule-art{display:flex;flex-direction:column;align-items:center;color:var(--red);line-height:1;margin:10px auto 16px;width:140px}.rule-parent{font-size:23px}.rule-forks{width:100%;display:flex;justify-content:space-around;font-size:28px;height:41px}.rule-forks i{font-style:normal;font-size:12px;color:#f5d19f}.rule-children{width:92px;display:flex;justify-content:space-between;font-size:24px}.rule-box>p:not(.rule-tag){color:#abc1cd;font-size:12px;line-height:1.6}.rule-box strong{color:var(--white)}.rule-box .equation{color:var(--gold);font-size:12px;line-height:1.6;background:#1b3345;padding:10px;text-align:center;border-radius:5px;white-space:nowrap}.rule-box .rule-note{font-size:11px!important;color:#819db0!important;margin:14px 0 0}.control-section{margin-top:24px}.control-section>label{display:block;color:#a9c1d0;letter-spacing:.09em;font-size:10px;font-weight:700}.control-section>label output{color:var(--red)}.control-section select{background:#1d3548;border:1px solid #426077;border-radius:5px;color:white;padding:11px;width:100%;margin-top:10px}.control-section .select-second{margin-top:20px}.copy-link{margin-top:23px;width:100%;text-align:left;padding:13px 12px;border-radius:5px;border:1px solid #38596b;background:transparent;color:var(--mint);font-size:12px}.copy-link:hover{background:#1c3c48}.hidden{display:none!important}.ensemble-placeholder{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px 18px;background:radial-gradient(circle at 50% 40%,#244055,#0e2031 78%)}.large-stats{font-size:clamp(30px,5vw,60px);font-family:'Space Grotesk',sans-serif;color:var(--red);letter-spacing:-.04em}.ensemble-placeholder p{max-width:480px;font-size:13px;line-height:1.7;color:#a9c1cf}.progress-rail{width:min(330px,90%);height:7px;background:#29465c;border-radius:99px;overflow:hidden;margin:10px 0}.progress-bar{height:100%;width:0;background:var(--red);transition:width .1s}#progress-label{font-size:11px;color:#89a7b9}.notes{padding:90px 0 20px;scroll-margin-top:20px}.note-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.note{border:1px solid #2b485b;background:#12283a;padding:26px 25px;border-radius:8px}.note-number{font-size:10px;letter-spacing:.16em;color:var(--mint);font-weight:700}.note h3{font-size:23px;margin:18px 0 13px;letter-spacing:-.035em}.note p,.theory-card p{font-size:13px;line-height:1.8;color:#a4bdcb;margin-bottom:0}.theory-layout{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:16px}.theory-card{border:1px solid #2b485b;background:#112536;padding:29px;border-radius:8px;min-width:0}.theory-card h3{font-size:23px;letter-spacing:-.035em}.formula{font-family:'Space Grotesk',sans-serif;color:#f7ca87;background:#1c364a;padding:15px 11px;line-height:1.6;margin:21px 0;border-radius:6px;font-size:16px;overflow:auto}.scaling-lines{margin:19px 0}.scaling-lines div{font-family:'Space Grotesk',sans-serif;font-size:20px;color:var(--gold);padding:11px 0;border-bottom:1px solid #294558}.scaling-lines span{font-family:'DM Sans',sans-serif;font-size:12px;color:#8daebe;display:block;margin-top:6px}.caveat{margin:17px 0;background:#2d2b32;border:1px solid #5e5146;border-radius:6px;padding:18px 24px;display:flex;align-items:start;gap:30px}.caveat>span{font-size:10px;letter-spacing:.13em;font-weight:700;color:#f1c48a;min-width:160px;margin-top:4px}.caveat p{color:#c2bcb6;line-height:1.7;font-size:12px;margin:0}.references{padding:65px 0 50px;color:var(--dim);font-size:13px;line-height:1.8}.references h2{font-size:26px;color:var(--white)}.references a{color:var(--mint);text-decoration:underline;text-underline-offset:3px}.footer-note{color:#7897a9}footer{border-top:1px solid #2a4557;padding:28px 4vw;display:flex;justify-content:space-between;font-size:11px;letter-spacing:.13em;color:#7092a7}footer a{text-decoration:none;color:var(--mint)}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}@media(max-width:1080px){.lab-grid{grid-template-columns:minmax(0,1fr) 285px}.top-links{gap:15px}.keyboard-tip{display:none}.control-card{padding:18px 16px}.tab{padding:15px 14px}.tab strong{font-size:12px}.intro{padding-top:58px}}@media(max-width:840px){.lab-grid{grid-template-columns:1fr}.control-card{display:grid;grid-template-columns:1fr 1fr;column-gap:20px}.control-head,.rule-box,.copy-link{grid-column:span 2}.parameter-label,.p-output,.slider-limits,.preset-label,.presets{grid-column:1}.rule-box{max-width:none}.control-section{align-self:end}.top-tag{display:none}}@media(max-width:600px){.topbar{height:63px;padding:0 18px}.top-links{gap:12px}.top-links a{font-size:10px}.brand{font-size:11px}.brand-mark{font-size:24px}main{padding:0 17px}.intro{padding:58px 0 48px}.intro-copy{font-size:14px}.intro-footer{gap:20px;flex-wrap:wrap}.critical-stat strong{font-size:24px}.section-heading{display:block}.section-heading h2{font-size:28px}.section-heading>p{margin-top:12px}.tabs{overflow-x:auto}.tab{padding:12px 14px;font-size:10px}.tab strong{font-size:11px;margin-left:5px}.screen-head{padding:0 9px}.screen-title{font-size:9px}.transport{gap:6px}.transport button{padding:10px 11px;font-size:11px}.stats-row{gap:5px}.metric{padding:12px 10px}.metric strong{font-size:21px}.metric span{font-size:8px}.chart-panel{padding:12px}.chart-head h3{font-size:15px}.toggle{font-size:10px}.control-card{display:block}.note-grid,.theory-layout{grid-template-columns:1fr}.notes{padding-top:60px}.caveat{display:block}.caveat span{display:block;margin-bottom:10px}footer{font-size:9px}.model-chip{font-size:11px}}
+
+</style>
+
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="brand-mark" aria-hidden="true">◈</span><span>DP <span class="muted">/</span> INTERACTIVE LAB</span></div>
+  <nav class="top-links" aria-label="On-page navigation"><a href="#experiment">Experiment</a><a href="#theory">Physics notes</a><a href="#references">References</a></nav>
+  <span class="top-tag">1 spatial + 1 time dimension</span>
+</header>
+<main>
+  <section class="intro">
+    <p class="eyebrow">NONEQUILIBRIUM CRITICAL PHENOMENA</p>
+    <h1>When does an epidemic<br><em>keep spreading?</em></h1>
+    <p class="intro-copy">Infect one site. Let the infection branch, compete, and disappear. Vary a single transmission probability and watch a transition from inevitable extinction to sustained activity.</p>
+    <div class="intro-footer"><div class="critical-stat"><span>CRITICAL POINT · 1+1D BOND DP</span><strong>p<sub>c</sub> ≈ 0.644700185</strong></div><div class="model-chip"><span class="live-dot"></span>Independent left/right transmissions<br>No spontaneous infections</div></div>
+  </section>
+
+  <section id="experiment" aria-label="Interactive experiment" class="lab">
+    <div class="section-heading"><div><p class="eyebrow">THE EXPERIMENT</p><h2>Explore the transition</h2></div><p>Space runs horizontally. Time flows downward. Each bright cell is infected in that generation.</p></div>
+    <div class="tabs" role="tablist" aria-label="Initial condition or experiment">
+       <button class="tab active" role="tab" aria-selected="true" aria-controls="pane-sim" id="tab-seed" data-mode="seed">01 <strong>One infected seed</strong></button>
+       <button class="tab" role="tab" aria-selected="false" aria-controls="pane-sim" id="tab-full" data-mode="full">02 <strong>Fully infected</strong></button>
+       <button class="tab" role="tab" aria-selected="false" aria-controls="pane-sim" id="tab-ensemble" data-mode="ensemble">03 <strong>Many outbreaks</strong></button>
+    </div>
+    <div class="lab-grid">
+       <div class="display-column" id="pane-sim" role="tabpanel" aria-labelledby="tab-seed">
+          <div class="screen-head"><div class="screen-title"><span class="mini-indicator"></span><span id="screen-title">SPACETIME / SINGLE-SEED GROWTH</span></div><span id="regime" class="regime critical">NEAR CRITICAL</span></div>
+          <div class="screen" id="screen-wrap">
+            <canvas id="spacetime" width="401" height="191" role="img" aria-label="Space time diagram of the infected sites"></canvas>
+            <div id="ensemble-placeholder" class="ensemble-placeholder hidden"><div class="large-stats">P<sub>survival</sub>(t)</div><p>Run independent outbreaks from the same initial seed to estimate a survival probability instead of relying on one history.</p><div class="progress-rail"><div id="progress-bar" class="progress-bar"></div></div><span id="progress-label">Ready for an ensemble of runs</span></div>
+          </div>
+          <div class="ruler"><span>← POSITION x →</span><span>TIME t ↓</span></div>
+          <div id="sim-controls" class="transport"><button class="primary" id="play">▶ Play</button><button id="step">Step +1</button><button id="restart">↻ Restart</button><button id="new-seed">New randomness</button><span class="keyboard-tip">SPACE play/pause · → step · R restart</span></div>
+          <div id="ensemble-controls" class="transport hidden"><button class="primary" id="run-ensemble">▶ Run outbreaks</button><button id="cancel-ensemble" disabled>Cancel</button><span class="keyboard-tip">Each outbreak begins with one infected individual.</span></div>
+          <div class="stats-row" aria-live="polite">
+            <div class="metric"><span>TIME STEP</span><strong id="time-stat">0 / 190</strong></div>
+            <div class="metric"><span id="active-label">ACTIVE SITES</span><strong id="active-stat">1</strong></div>
+            <div class="metric"><span id="state-label">OUTBREAK STATUS</span><strong id="state-stat">ALIVE</strong></div>
+          </div>
+          <div class="chart-panel"><div class="chart-head"><div><span class="chart-eyebrow">MEASURED QUANTITY</span><h3 id="chart-title">Number of infected sites N(t)</h3></div><label class="toggle"><input id="log-scale" type="checkbox" /><span>Log–log axes</span></label></div>
+          <canvas id="timeseries" width="900" height="275" role="img" aria-label="Time series of the selected order parameter or survival statistic"></canvas><div class="chart-foot"><span id="chart-explanation">One realization. A single seed can die even when p is above the threshold.</span><span id="guide-label" class="guide-label hidden">Critical guide</span></div></div>
+       </div>
+       <aside class="control-card" aria-label="Simulation settings">
+         <div class="control-head"><span>CONTROL PANEL</span><span class="chip">BOND DP</span></div>
+         <label class="parameter-label" for="probability">TRANSMISSION PROBABILITY <span>p</span></label>
+         <div class="p-output"><output id="p-value" for="probability">0.6447</output><span>/ each outgoing bond</span></div>
+         <input id="probability" aria-label="Transmission probability" type="range" min="0.40" max="0.90" value="0.6447" step="0.0001" />
+         <div class="slider-limits"><span>0.40</span><span>0.90</span></div>
+         <div class="preset-label">JUMP TO A REGIME</div><div class="presets"><button data-p="0.55">Below <small>0.55</small></button><button class="selected" data-p="0.6447">Critical <small>0.6447</small></button><button data-p="0.75">Above <small>0.75</small></button></div>
+         <div class="rule-box"><p class="rule-tag">THE LOCAL UPDATE RULE</p><div class="rule-art" aria-hidden="true"><div class="rule-parent">●</div><div class="rule-forks"><span>↙ <i>p</i></span><span><i>p</i> ↘</span></div><div class="rule-children"><span>○</span><span>○</span></div></div><p>Each infected site transmits independently to its two neighbors at the <strong>next</strong> time step.</p><div class="equation">P(infection | k parents) = 1 − (1 − p)<sup>k</sup></div><p class="rule-note">No infected parents? No new infection. All-healthy is absorbing.</p></div>
+         <div id="speed-control" class="control-section"><label for="speed">ANIMATION SPEED <output id="speed-value">30</output> gen/s</label><input type="range" id="speed" min="2" max="120" value="30" step="1" /></div>
+         <div id="trials-control" class="control-section hidden"><label for="trials">NUMBER OF OUTBREAKS</label><select id="trials"><option value="100">100 trials · quick</option><option value="400" selected>400 trials · clearer</option><option value="1200">1,200 trials · smooth</option></select><label for="ensemble-metric" class="select-second">PLOT QUANTITY</label><select id="ensemble-metric"><option value="survival">Survival probability P(t)</option><option value="mass">Average infected count N(t)</option></select></div>
+         <button id="copy-link" class="copy-link">Copy this experiment’s link ↗</button><div id="copy-status" class="sr-only" aria-live="polite"></div>
+       </aside>
+    </div>
+  </section>
+
+  <section id="theory" class="notes"><div class="section-heading"><div><p class="eyebrow">WHAT TO NOTICE</p><h2>Three observations, one transition</h2></div></div>
+    <div class="note-grid"><article class="note"><div class="note-number">01 / BELOW</div><h3>Extinction wins</h3><p>In the subcritical phase, a single outbreak eventually dies. Starting with a fully infected lattice, the infected fraction falls toward zero.</p></article><article class="note"><div class="note-number">02 / CRITICAL</div><h3>No typical timescale</h3><p>At the threshold the activity is scale-free: survival, population growth and density decay follow power laws over long intervals.</p></article><article class="note"><div class="note-number">03 / ABOVE</div><h3>Activity can persist</h3><p>In an infinite system, a seed has a nonzero survival probability and an initially infected population approaches nonzero density.</p></article></div>
+    <div class="theory-layout"><article class="theory-card"><p class="eyebrow">ORDER PARAMETER</p><h3>Stationary infected density</h3><p>From a fully infected initial condition, the order parameter in the thermodynamic limit is</p><div class="formula">ρ<sub>st</sub> = lim<sub>t→∞</sub> lim<sub>L→∞</sub> ⟨(1/L) ∑<sub>i</sub> n<sub>i</sub>(t)⟩</div><p>In the active phase, <strong>ρ<sub>st</sub> ∝ (p − p<sub>c</sub>)<sup>β</sup></strong> with <strong>β ≈ 0.2765</strong>. Limits matter: a finite stochastic system eventually absorbs for 0 &lt; p &lt; 1.</p></article><article class="theory-card"><p class="eyebrow">DYNAMICAL SCALING</p><h3>What happens at criticality?</h3><div class="scaling-lines"><div>ρ(t) ∼ t<sup>−α</sup><span>from a fully active lattice</span></div><div>P<sub>surv</sub>(t) ∼ t<sup>−δ</sup><span>from many single-seed outbreaks</span></div><div>N(t) ∼ t<sup>θ</sup><span>mean count, including extinct runs</span></div></div><p>In 1+1D: <strong>α ≈ δ ≈ 0.1595</strong>, <strong>θ ≈ 0.3137</strong>. The log–log plot overlays a theoretical slope when close to <em>p<sub>c</sub></em>.</p></article></div>
+    <div class="caveat"><span>IMPORTANT CAVEAT</span><p>“Active phase” means survival is possible in the <em>infinite</em> system, not guaranteed in an individual realization. Finite size, limited time and statistical noise can obscure a sharp transition. This is a minimal epidemic model with one-generation infectiousness, not a realistic model of human epidemics.</p></div>
+  </section>
+  <section id="references" class="references"><h2>For the talk</h2><p>Background and references: <a href="https://doi.org/10.1016/j.aop.2004.09.011" target="_blank" rel="noopener noreferrer">Janssen & Täuber, field-theory review</a>; <a href="https://arxiv.org/abs/cond-mat/0001070" target="_blank" rel="noopener noreferrer">Hinrichsen, nonequilibrium phase transitions</a>; <a href="https://doi.org/10.1103/PhysRevB.33.1982" target="_blank" rel="noopener noreferrer">Essam, Guttmann & De'Bell, directed-bond threshold</a>. The bond threshold and 1+1D exponents quoted here are numerical results.</p><p class="footer-note">Pure client-side simulation · independent random numbers per directed bond · periodic spatial boundaries · 401 sites × 191 time slices · no accounts, no server.</p></section>
+</main>
+<footer><span>DIRECTED PERCOLATION / INTERACTIVE LAB</span><a href="#experiment">Back to the experiment ↑</a></footer>
+<script>
+/* Directed bond percolation on a 1D periodic lattice.
+   Each occupied site attempts two INDEPENDENT transmissions at every generation.
+   No spontaneous infections. Designed to run locally with no build tooling. */
+(() => {
+  'use strict';
+  const W = 401, T = 190, PC = 0.644700185;
+  const $ = id => document.getElementById(id);
+  const canvas = $('spacetime'), g = canvas.getContext('2d', {alpha:false});
+  const plot = $('timeseries'), cg = plot.getContext('2d');
+  const elements = {
+    p: $('probability'), pOut: $('p-value'), speed: $('speed'), speedOut: $('speed-value'),
+    tabs: [...document.querySelectorAll('.tab')], play: $('play'), step: $('step'),
+    restart: $('restart'), newSeed: $('new-seed'), regime: $('regime'),
+    title: $('screen-title'), count: $('active-stat'), time: $('time-stat'),
+    state: $('state-stat'), activeLabel: $('active-label'), stateLabel: $('state-label'),
+    log: $('log-scale'), chartTitle: $('chart-title'), chartExplanation: $('chart-explanation'),
+    guide: $('guide-label'), simControls: $('sim-controls'), ensembleControls: $('ensemble-controls'),
+    placeholder: $('ensemble-placeholder'), ensembleRun: $('run-ensemble'),
+    ensembleCancel: $('cancel-ensemble'), progress: $('progress-bar'),
+    progressLabel: $('progress-label'), trials: $('trials'), metric: $('ensemble-metric')
+  };
+  const params = new URLSearchParams(window.location.search);
+  let p = Number(params.get('p'));
+  if (!Number.isFinite(p) || p < .4 || p > .9) p = .6447;
+  let mode = ['seed','full','ensemble'].includes(params.get('mode')) ? params.get('mode') : 'seed';
+  let speed = 30;
+  let runSeed = 10838;
+  let random = mulberry32(runSeed);
+  let current = new Uint8Array(W);
+  let next = new Uint8Array(W);
+  let currentCount=0, t=0, playing=false, prevTime=0, timeDebt=0;
+  let values=[];
+  let ensemble = null;
+  let batchSerial = 0;
+  const rasterBack='#101d2e', rasterActive='#ff7669';
+
+  // Explicit 32-bit PRNG enables repeatability of a single experiment.
+  function mulberry32(seed) {
+    let a = seed >>> 0;
+    return function () {
+      a = (a + 0x6D2B79F5) >>> 0;
+      let z = a;
+      z = Math.imul(z ^ (z >>> 15), z | 1);
+      z ^= z + Math.imul(z ^ (z >>> 7), z | 61);
+      return ((z ^ (z >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function stepInto(a,b,probability,rng) {
+    b.fill(0);
+    // Outgoing bonds are independent, even when they share a target.
+    for (let x = 0; x < W; x++) if (a[x]) {
+      if (rng() < probability) b[x===0 ? W-1 : x-1]=1;
+      if (rng() < probability) b[x===W-1 ? 0 : x+1]=1;
+    }
+    let sum=0;
+    for (let x=0;x<W;x++) sum+=b[x];
+    return sum;
+  }
+  function newRandomSeed() {
+    if (window.crypto && crypto.getRandomValues) {
+      const a=new Uint32Array(1); crypto.getRandomValues(a); return a[0];
+    }
+    return (Date.now() ^ Math.floor(Math.random()*0xffffffff)) >>> 0;
+  }
+  function backgroundRaster() {g.fillStyle=rasterBack;g.fillRect(0,0,W,T+1);}
+  function rasterRow(step, activity) {
+    g.fillStyle=rasterActive;
+    for(let x=0;x<W;x++) if(activity[x])g.fillRect(x,step,1,1);
+  }
+  function labelRegime() {
+    const gap=p-PC;
+    const r=elements.regime;
+    if (Math.abs(gap) < .003) {r.textContent='NEAR CRITICAL';r.className='regime critical';}
+    else if(gap<0){r.textContent='SUBCRITICAL';r.className='regime sub';}
+    else {r.textContent='SUPERCRITICAL';r.className='regime super';}
+  }
+  function selectPreset() {
+    for(const b of document.querySelectorAll('[data-p]')) {
+      b.classList.toggle('selected',Math.abs(Number(b.dataset.p)-p)<.00005);
+    }
+  }
+  function displayProbability() {
+    elements.p.value=p.toFixed(4); elements.pOut.textContent=p.toFixed(4);labelRegime();selectPreset();
+  }
+  function startSimulation(autoplay=false) {
+    batchSerial++;
+    playing=autoplay;
+    elements.play.textContent=playing?'Ⅱ Pause':'▶ Play';
+    random=mulberry32(runSeed);current.fill(mode==='full' ? 1 : 0);next.fill(0);
+    if(mode==='seed')current[(W-1)/2]=1;
+    currentCount=mode==='seed'?1:W;
+    t=0;timeDebt=0;prevTime=0;
+    backgroundRaster();rasterRow(0,current);
+    values=[mode==='seed'?1:1];
+    updateStats();renderChart();
+  }
+  function simulateOne() {
+    if(t>=T || currentCount===0){playing=false;elements.play.textContent='▶ Play';return;}
+    currentCount=stepInto(current,next,p,random);
+    const swap=current;current=next;next=swap;
+    t++;
+    rasterRow(t,current);
+    values.push(mode==='seed'?currentCount:currentCount/W);
+    if(t>=T||currentCount===0){playing=false;elements.play.textContent='▶ Play';}
+    updateStats();
+    renderChart();
+  }
+  function updateStats() {
+    elements.time.textContent=mode==='ensemble'?`${T} generations`:`${t} / ${T}`;
+    if(mode==='ensemble') {
+      elements.activeLabel.textContent='COMPLETED RUNS';
+      elements.stateLabel.textContent='SURVIVAL AT t = 190';
+      elements.count.textContent=ensemble?ensemble.done.toLocaleString():'0';
+      let total=ensemble?ensemble.done:0;
+      elements.state.textContent=total?(100*ensemble.survivors[T]/total).toFixed(1)+'%':'—';
+      return;
+    }
+    elements.activeLabel.textContent=mode==='seed'?'ACTIVE SITES':'INFECTED FRACTION';
+    elements.stateLabel.textContent=mode==='seed'?'OUTBREAK STATUS':'LATTICE STATUS';
+    elements.count.textContent=mode==='seed'?`${currentCount}`:`${(100*currentCount/W).toFixed(1)}%`;
+    elements.state.textContent=currentCount===0?'ABSORBED':t>=T?'END OF WINDOW':playing?'SPREADING':'PAUSED';
+  }
+  function setMode(selected) {
+    if (mode===selected && values.length) return;
+    playing=false;batchSerial++;mode=selected;ensemble=null;
+    for (const b of elements.tabs) {
+      const active=b.dataset.mode===mode;
+      b.classList.toggle('active',active);
+      b.setAttribute('aria-selected',String(active));
+    }
+    $('pane-sim').setAttribute('aria-labelledby',`tab-${mode}`);
+    const isEnsemble=mode==='ensemble';
+    canvas.classList.toggle('hidden',isEnsemble);
+    elements.placeholder.classList.toggle('hidden',!isEnsemble);
+    elements.simControls.classList.toggle('hidden',isEnsemble);
+    elements.ensembleControls.classList.toggle('hidden',!isEnsemble);
+    $('speed-control').classList.toggle('hidden',isEnsemble);
+    $('trials-control').classList.toggle('hidden',!isEnsemble);
+    elements.title.textContent=isEnsemble?'STATISTICS / INDEPENDENT OUTBREAKS':mode==='seed'?'SPACETIME / SINGLE-SEED GROWTH':'SPACETIME / FULLY ACTIVE INITIAL STATE';
+    elements.chartTitle.textContent=isEnsemble?'Survival probability P(t)':mode==='seed'?'Number of infected sites N(t)':'Infected density ρ(t)';
+    elements.chartExplanation.textContent=isEnsemble?'Average over independently generated single-seed histories.':mode==='seed'?'One realization. A single seed can die even when p is above the threshold.':'Fraction of infected sites, starting from all sites infected.';
+    if(isEnsemble){
+      values=[]; updateProgress(0,Number(elements.trials.value));updateStats();renderChart();
+    } else {startSimulation(false);}
+    updateQueryString();
+  }
+  function updateProbability(value) {
+    const candidate=Math.min(.9,Math.max(.4,Number(value)));
+    if(!Number.isFinite(candidate))return;
+    p=candidate;displayProbability();updateQueryString();
+    if(mode==='ensemble'){
+      batchSerial++;ensemble=null;elements.ensembleRun.disabled=false;elements.ensembleCancel.disabled=true;
+      values=[];updateProgress(0,Number(elements.trials.value));updateStats();renderChart();
+    } else startSimulation(playing);
+  }
+  function updateQueryString() {
+    const url=new URL(window.location.href);url.searchParams.set('p',p.toFixed(4));url.searchParams.set('mode',mode);
+    try { window.history.replaceState(null,'',url.pathname+url.search+url.hash); } catch (_) { /* local file */ }
+  }
+  function updateProgress(done,total) {
+    const frac=total?Math.min(1,done/total):0;
+    elements.progress.style.width=(100*frac).toFixed(1)+'%';
+    elements.progressLabel.textContent=done?`${done.toLocaleString()} of ${total.toLocaleString()} outbreaks`:`Ready for ${total.toLocaleString()} independent outbreaks`;
+  }
+  function simulateEnsembleOutbreak(seed) {
+    let a=new Uint8Array(W),b=new Uint8Array(W),rng=mulberry32(seed);
+    a[(W-1)/2]=1;let count=1;
+    ensemble.survivors[0]++;
+    ensemble.masses[0]++;
+    for(let step=1;step<=T;step++){
+      if(count===0)break; // zero contribution in later times
+      count=stepInto(a,b,p,rng);
+      const c=a;a=b;b=c;
+      ensemble.survivors[step]+=+(count>0);
+      ensemble.masses[step]+=count;
+    }
+  }
+  function beginEnsemble() {
+    if(mode!=='ensemble')return;
+    const serial=++batchSerial;
+    const total=Number(elements.trials.value);
+    const master=mulberry32(newRandomSeed());
+    ensemble={done:0,total,survivors:new Float64Array(T+1),masses:new Float64Array(T+1)};
+    elements.ensembleRun.disabled=true;elements.ensembleCancel.disabled=false;
+    values=[];updateStats();updateProgress(0,total);renderChart();
+    function batch() {
+      if(serial!==batchSerial||mode!=='ensemble')return;
+      const cap=Math.min(total,ensemble.done+12);
+      while(ensemble.done<cap) {
+        simulateEnsembleOutbreak(Math.floor(master()*4294967296));
+        ensemble.done++;
+      }
+      const key=elements.metric.value==='survival'?'survivors':'masses';
+      values=Array.from(ensemble[key],s=>s/ensemble.done);
+      updateProgress(ensemble.done,total);updateStats();renderChart();
+      if(ensemble.done<total) requestAnimationFrame(batch);
+      else {elements.ensembleRun.disabled=false;elements.ensembleCancel.disabled=true;}
+    }
+    requestAnimationFrame(batch);
+  }
+  function cancelEnsemble() {
+    batchSerial++;
+    elements.ensembleRun.disabled=false;elements.ensembleCancel.disabled=true;
+    if(ensemble)elements.progressLabel.textContent+=` · stopped`;
+  }
+  function isLog() {return elements.log.checked;}
+  function renderChart() {
+    const w=plot.width,h=plot.height;
+    cg.clearRect(0,0,w,h);cg.fillStyle='#112437';cg.fillRect(0,0,w,h);
+    const pad={left:62,right:23,top:20,bottom:43};const dw=w-pad.left-pad.right,dh=h-pad.top-pad.bottom;
+    const log=isLog();
+    cg.font='12px DM Sans, sans-serif';cg.lineWidth=1;
+    if(!values.length){
+      cg.fillStyle='#8caabe';cg.textAlign='center';
+      cg.fillText(mode==='ensemble'?'Run an ensemble to see the survival law':'No measurements yet',w/2,h/2);
+      elements.guide.classList.add('hidden');return;
+    }
+    const entries=values.map((y,x)=>({x,y})).filter(pt=>pt.x>=(log?1:0)&&Number.isFinite(pt.y)&&(!log||pt.y>0));
+    if(!entries.length)return;
+    let minY=Math.min(...entries.map(e=>e.y)),maxY=Math.max(...entries.map(e=>e.y));
+    let lo,hi;
+    if (log) {
+      lo=Math.pow(10,Math.floor(Math.log10(Math.max(minY*.75,1e-4))*2)/2);
+      hi=Math.pow(10,Math.ceil(Math.log10(maxY*1.4)*2)/2);
+      if(hi<=lo)hi=lo*10;
+    } else {
+      lo=0;hi=maxY>0?maxY*1.12:1;
+      if(mode==='full'||(mode==='ensemble'&&elements.metric.value==='survival'))hi=Math.max(hi,1.02);
+    }
+    const fx=x=>pad.left+dw*(log?Math.log(Math.max(1,x))/Math.log(T):x/T);
+    const fy=y=>pad.top+dh*(1-(log?(Math.log(y)-Math.log(lo))/(Math.log(hi)-Math.log(lo)):(y-lo)/(hi-lo)));
+    // Axes and guides.
+    const tickX=log?[1,2,5,10,20,50,100,190]:[0,40,80,120,160,190];
+    for(let j=0;j<5;j++){
+      const y=pad.top+j*dh/4;
+      cg.strokeStyle='#294255';cg.beginPath();cg.moveTo(pad.left,y);cg.lineTo(w-pad.right,y);cg.stroke();
+      const value=log?hi*Math.pow(lo/hi,j/4):hi*(1-j/4);
+      const format=value>=10?value.toFixed(0):value>=1?value.toFixed(2):value>=.01?value.toFixed(3):value.toExponential(0);
+      cg.fillStyle='#85a4b6';cg.textAlign='right';cg.fillText(format,pad.left-12,y+4);
+    }
+    for(const x of tickX){
+      const xx=fx(x);cg.strokeStyle='#284052';cg.beginPath();cg.moveTo(xx,pad.top);cg.lineTo(xx,pad.top+dh);cg.stroke();
+      cg.fillStyle='#85a4b6';cg.textAlign='center';cg.fillText(String(x),xx,h-pad.bottom+19);
+    }
+    cg.fillStyle='#9ab6c7';cg.textAlign='center';cg.fillText('time t',pad.left+dw/2,h-7);
+    // A predicted slope, normalized to the measured curve at the first usable anchor.
+    const guideOn=log&&Math.abs(p-PC)<.003&&mode!=='seed'&&entries.length>10;
+    elements.guide.classList.toggle('hidden',!guideOn);
+    if(guideOn){
+      const exponent=mode==='full'?-.159464:elements.metric.value==='survival'?-.159464:.313686;
+      const anchor=entries.find(v=>v.x>=Math.min(20,T));
+      if(anchor){
+        cg.beginPath();cg.strokeStyle='#f4c37c';cg.setLineDash([8,5]);cg.lineWidth=2.2;
+        let on=false;
+        for(let x=anchor.x;x<=T;x++){
+          const pred=anchor.y*Math.pow(x/anchor.x,exponent);
+          if(pred<lo||pred>hi)continue;
+          const px=fx(x),py=fy(pred);
+          if(!on){cg.moveTo(px,py);on=true;}else cg.lineTo(px,py);
+        }
+        cg.stroke();cg.setLineDash([]);cg.lineWidth=1;
+        elements.guide.textContent=`Theoretical slope ${exponent.toFixed(3)}`;
+      }
+    }
+    cg.strokeStyle='#ff7669';cg.lineWidth=2.6;cg.lineJoin='round';cg.beginPath();
+    let begun=false;
+    for(const e of entries){const xx=fx(e.x),yy=fy(e.y);if(!Number.isFinite(yy))continue;
+      if(!begun){cg.moveTo(xx,yy);begun=true;}else cg.lineTo(xx,yy);
+    }
+    cg.stroke();cg.lineWidth=1;
+    const last=entries[entries.length-1];
+    if(last){cg.fillStyle='#ff7669';cg.beginPath();cg.arc(fx(last.x),fy(last.y),4,0,Math.PI*2);cg.fill();}
+  }
+  function onFrame(timestamp) {
+    if(playing&&mode!=='ensemble') {
+      if(!prevTime)prevTime=timestamp;
+      timeDebt+=Math.min((timestamp-prevTime)/1000,.1)*speed;
+      prevTime=timestamp;
+      const toAdvance=Math.min(22,Math.floor(timeDebt));
+      for(let k=0;k<toAdvance;k++) {simulateOne();timeDebt-=1;if(!playing)break;}
+    } else {prevTime=0;timeDebt=0;}
+    requestAnimationFrame(onFrame);
+  }
+  // Interface wiring.
+  for(const tab of elements.tabs)tab.addEventListener('click',()=>setMode(tab.dataset.mode));
+  elements.p.addEventListener('input',ev=>updateProbability(ev.target.value));
+  document.querySelectorAll('[data-p]').forEach(el=>el.addEventListener('click',()=>updateProbability(el.dataset.p)));
+  elements.speed.addEventListener('input',ev=>{speed=Number(ev.target.value);elements.speedOut.textContent=String(speed);});
+  elements.play.addEventListener('click',()=>{
+    if(!playing&&(t>=T||currentCount===0)){startSimulation(true);return;}
+    playing=!playing;prevTime=0;timeDebt=0;elements.play.textContent=playing?'Ⅱ Pause':'▶ Play';updateStats();
+  });
+  elements.step.addEventListener('click',()=>{playing=false;elements.play.textContent='▶ Play';simulateOne();});
+  elements.restart.addEventListener('click',()=>startSimulation(false));
+  elements.newSeed.addEventListener('click',()=>{runSeed=newRandomSeed();startSimulation(playing);});
+  elements.ensembleRun.addEventListener('click',beginEnsemble);
+  elements.ensembleCancel.addEventListener('click',cancelEnsemble);
+  elements.metric.addEventListener('change',()=>{
+    elements.chartTitle.textContent=elements.metric.value==='survival'?'Survival probability P(t)':'Mean infected sites N(t)';
+    if(ensemble&&ensemble.done){const data=elements.metric.value==='survival'?ensemble.survivors:ensemble.masses;values=Array.from(data,s=>s/ensemble.done);}
+    renderChart();
+  });
+  elements.trials.addEventListener('change',()=>{if(ensemble&&ensemble.done<ensemble.total)cancelEnsemble();});
+  elements.log.addEventListener('change',renderChart);
+  $('copy-link').addEventListener('click',async()=>{
+    updateQueryString();
+    try {await navigator.clipboard.writeText(window.location.href);$('copy-link').textContent='✓ Link copied';$('copy-status').textContent='Experiment link copied to clipboard.';}
+    catch(e){$('copy-link').textContent='Select URL in address bar to copy';$('copy-status').textContent='Automatic copy was not permitted.';}
+  });
+  document.addEventListener('keydown',e=>{
+    if(e.target instanceof HTMLElement && ['INPUT','TEXTAREA','SELECT','BUTTON'].includes(e.target.tagName))return;
+    if(mode==='ensemble')return;
+    if(e.code==='Space'){e.preventDefault();elements.play.click();}
+    if(e.code==='ArrowRight'){e.preventDefault();elements.step.click();}
+    if(e.key.toLowerCase()==='r'){e.preventDefault();elements.restart.click();}
+  });
+  displayProbability();
+  setMode(mode==='seed'?'full':'seed'); // Force a complete first render in all entry modes.
+  setMode(['seed','full','ensemble'].includes(params.get('mode'))?params.get('mode'):'seed');
+  requestAnimationFrame(onFrame);
+})();
+
+</script>
+</body>
+</html>
