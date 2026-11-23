@@ -12,6 +12,42 @@
 
 </style>
 
+
+<style>
+/* Side-by-side experiment: independent sample paths, synchronized generations. */
+.compare-intro{background:linear-gradient(110deg,#172e44,#112437);border:1px solid #31566c;border-radius:9px;margin-bottom:14px;padding:18px 20px;display:flex;justify-content:space-between;align-items:flex-start;gap:15px}
+.compare-intro h3{font-size:22px;letter-spacing:-.03em;margin:4px 0 8px}
+.compare-intro p{font-size:12px;color:var(--dim);line-height:1.6;max-width:570px;margin:0}
+.compare-regime{flex-shrink:0}
+.compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.compare-card{background:#112437;border:1px solid #2a4557;border-radius:9px;min-width:0;overflow:hidden}
+.compare-card:first-child{border-color:#61444d}
+.compare-card:nth-child(2){border-color:#2d665d}
+.compare-card-header{padding:14px 16px 11px;display:flex;align-items:flex-start;gap:12px}
+.compare-number{font-family:'Space Grotesk',sans-serif;font-size:22px;color:var(--red);font-weight:600}
+.compare-card:nth-child(2) .compare-number{color:var(--mint)}
+.compare-card h4{margin:1px 0 4px;font-family:'Space Grotesk',sans-serif;font-size:16px}
+.compare-card-header p{margin:0;color:#97b3c1;font-size:11px}
+.compare-raster{display:block;width:100%;height:auto;background:#101d2e;image-rendering:pixelated}
+.compare-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 14px;border-top:1px solid #2c4758;font-size:11px;color:#a4bfca}
+.compare-foot strong{font-size:15px;font-family:'Space Grotesk',sans-serif;color:var(--white)}
+.compare-foot .absorbed{color:var(--red)}
+.compare-foot .alive{color:var(--mint)}
+.compare-axis{display:flex;justify-content:space-between;color:#85a5b6;font-size:10px;letter-spacing:.08em;margin:10px 2px 12px}
+.compare-actions{margin:7px 0 16px}
+.compare-chart{margin-top:14px}
+.compare-chart h3{margin:5px 0 8px}
+#compare-plot{display:block;width:100%;height:auto}
+.compare-legend{display:flex;flex-wrap:wrap;gap:16px;font-size:11px;color:var(--dim);margin:6px 0 2px}
+.compare-legend span{display:flex;align-items:center;gap:7px}
+.compare-legend i{display:inline-block;width:15px;height:3px;border-radius:2px}
+.compare-lead{margin:11px 0 0;color:#95b4c5;font-size:11px;line-height:1.6}
+.compare-overview{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-top:12px;color:#9bb8c8;font-size:12px}
+.compare-overview output{color:var(--mint);font-weight:700}
+@media(max-width:1100px){.compare-grid{grid-template-columns:1fr}.compare-intro{flex-wrap:wrap}}
+@media(max-width:920px){.tabs{overflow-x:auto}.compare-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:680px){.compare-grid{grid-template-columns:1fr}.compare-intro h3{font-size:20px}.compare-foot{font-size:10px}}
+</style>
 </head>
 <body>
 <header class="topbar">
@@ -23,7 +59,7 @@
   <section class="intro">
     <p class="eyebrow">NONEQUILIBRIUM CRITICAL PHENOMENA</p>
     <h1>When does an epidemic<br><em>keep spreading?</em></h1>
-    <p class="intro-copy">Infect one site. Let the infection branch, compete, and disappear. Vary a single transmission probability and watch a transition from inevitable extinction to sustained activity.</p>
+    <p class="intro-copy">Compare two initial conditions at the <em>same</em> infection probability: one isolated seed and one fully infected population. Watch spreading versus relaxation to a fluctuating active state.</p>
     <div class="intro-footer"><div class="critical-stat"><span>CRITICAL POINT · 1+1D BOND DP</span><strong>p<sub>c</sub> ≈ 0.644700185</strong></div><div class="model-chip"><span class="live-dot"></span>Independent left/right transmissions<br>No spontaneous infections</div></div>
   </section>
 
@@ -33,9 +69,11 @@
        <button class="tab active" role="tab" aria-selected="true" aria-controls="pane-sim" id="tab-seed" data-mode="seed">01 <strong>One infected seed</strong></button>
        <button class="tab" role="tab" aria-selected="false" aria-controls="pane-sim" id="tab-full" data-mode="full">02 <strong>Fully infected</strong></button>
        <button class="tab" role="tab" aria-selected="false" aria-controls="pane-sim" id="tab-ensemble" data-mode="ensemble">03 <strong>Many outbreaks</strong></button>
+       <button class="tab active" role="tab" aria-selected="true" aria-controls="pane-sim" id="tab-compare" data-mode="compare">04 <strong>Compare side by side</strong></button>
     </div>
     <div class="lab-grid">
-       <div class="display-column" id="pane-sim" role="tabpanel" aria-labelledby="tab-seed">
+       <div class="display-column" id="pane-sim" role="tabpanel" aria-labelledby="tab-compare">
+         <div id="legacy-display" class="hidden">
           <div class="screen-head"><div class="screen-title"><span class="mini-indicator"></span><span id="screen-title">SPACETIME / SINGLE-SEED GROWTH</span></div><span id="regime" class="regime critical">NEAR CRITICAL</span></div>
           <div class="screen" id="screen-wrap">
             <canvas id="spacetime" width="401" height="191" role="img" aria-label="Space time diagram of the infected sites"></canvas>
@@ -51,6 +89,35 @@
           </div>
           <div class="chart-panel"><div class="chart-head"><div><span class="chart-eyebrow">MEASURED QUANTITY</span><h3 id="chart-title">Number of infected sites N(t)</h3></div><label class="toggle"><input id="log-scale" type="checkbox" /><span>Log–log axes</span></label></div>
           <canvas id="timeseries" width="900" height="275" role="img" aria-label="Time series of the selected order parameter or survival statistic"></canvas><div class="chart-foot"><span id="chart-explanation">One realization. A single seed can die even when p is above the threshold.</span><span id="guide-label" class="guide-label hidden">Critical guide</span></div></div>
+         </div><!-- /legacy-display -->
+         <div id="compare-display">
+           <div class="compare-intro">
+             <div><p class="eyebrow" style="margin-bottom:4px">SAME RULES · TWO INITIAL CONDITIONS</p><h3>Spreading vs. stationarity</h3><p>Both lattices have 401 sites, periodic boundaries and identical <em>p</em>. Their transmission events are independent. Time advances together, from top to bottom.</p></div>
+             <span id="compare-regime" class="regime super compare-regime">SUPERCRITICAL</span>
+           </div>
+           <div class="compare-grid">
+             <article class="compare-card">
+               <div class="compare-card-header"><span class="compare-number">01</span><div><h4>Single infected seed</h4><p>One site at x = 200 · watch the outbreak spread</p></div></div>
+               <canvas class="compare-raster" id="compare-seed" width="401" height="191" role="img" aria-label="Space-time growth from one infected seed"></canvas>
+               <div class="compare-foot"><span>Infected now <strong id="compare-seed-count">1</strong></span><span id="compare-seed-state" class="alive">ALIVE</span></div>
+             </article>
+             <article class="compare-card">
+               <div class="compare-card-header"><span class="compare-number">02</span><div><h4>Initially fully infected</h4><p>All sites infected at t = 0 · watch density relax</p></div></div>
+               <canvas class="compare-raster" id="compare-full" width="401" height="191" role="img" aria-label="Space-time evolution from a fully infected lattice"></canvas>
+               <div class="compare-foot"><span>Infected fraction <strong id="compare-full-density">100.0%</strong></span><span id="compare-full-state" class="alive">ACTIVE</span></div>
+             </article>
+           </div>
+           <div class="compare-axis"><span>← POSITION x →</span><span>TIME t ↓</span></div>
+           <div class="transport compare-actions" aria-label="Synchronized controls">
+             <button id="compare-play" class="primary">▶ Play both</button><button id="compare-step">Step both +1</button><button id="compare-restart">↻ Restart</button><button id="compare-random">New realizations</button>
+           </div>
+           <div class="compare-overview"><span>SYNCHRONIZED GENERATION</span><output id="compare-time">0 / 190</output></div>
+           <div class="chart-panel compare-chart"><div class="chart-head"><div><span class="chart-eyebrow">MEASURED DENSITIES · EACH SINGLE REALIZATION</span><h3>Global infected fraction ρ(t)</h3></div></div>
+             <canvas id="compare-plot" width="900" height="288" role="img" aria-label="Comparison of infected density from the seed and fully infected lattice"></canvas>
+             <div class="compare-legend"><span><i style="background:#ff7669"></i>Seed: N(t) / 401</span><span><i style="background:#70d5b2"></i>Initially fully infected: ρ(t)</span></div>
+             <p class="compare-lead">The full-lattice density fluctuates around a nonzero level above <em>p<sub>c</sub></em>. Its recent 30-generation average is <strong id="compare-average">—</strong>. The seed curve measures infected fraction, <em>not</em> survival probability. A single seed may die even above the threshold. On a finite lattice, extinction ultimately occurs at 0 &lt; p &lt; 1.</p>
+           </div>
+         </div><!-- /compare-display -->
        </div>
        <aside class="control-card" aria-label="Simulation settings">
          <div class="control-head"><span>CONTROL PANEL</span><span class="chip">BOND DP</span></div>
@@ -98,9 +165,9 @@
     progressLabel: $('progress-label'), trials: $('trials'), metric: $('ensemble-metric')
   };
   const params = new URLSearchParams(window.location.search);
+  let mode = ['seed','full','ensemble','compare'].includes(params.get('mode')) ? params.get('mode') : 'compare';
   let p = Number(params.get('p'));
-  if (!Number.isFinite(p) || p < .4 || p > .9) p = .6447;
-  let mode = ['seed','full','ensemble'].includes(params.get('mode')) ? params.get('mode') : 'seed';
+  if (params.get('p')===null || !Number.isFinite(p) || p < .4 || p > .9) p = mode==='compare' ? .75 : .6447;
   let speed = 30;
   let runSeed = 10838;
   let random = mulberry32(runSeed);
@@ -110,6 +177,7 @@
   let values=[];
   let ensemble = null;
   let batchSerial = 0;
+  let comparison = null;
   const rasterBack='#101d2e', rasterActive='#ff7669';
 
   // Explicit 32-bit PRNG enables repeatability of a single experiment.
@@ -151,6 +219,7 @@
     if (Math.abs(gap) < .003) {r.textContent='NEAR CRITICAL';r.className='regime critical';}
     else if(gap<0){r.textContent='SUBCRITICAL';r.className='regime sub';}
     else {r.textContent='SUPERCRITICAL';r.className='regime super';}
+    const cr=$('compare-regime'); cr.textContent=r.textContent;cr.className=r.className+' compare-regime';
   }
   function selectPreset() {
     for(const b of document.querySelectorAll('[data-p]')) {
@@ -199,8 +268,8 @@
     elements.state.textContent=currentCount===0?'ABSORBED':t>=T?'END OF WINDOW':playing?'SPREADING':'PAUSED';
   }
   function setMode(selected) {
-    if (mode===selected && values.length) return;
-    playing=false;batchSerial++;mode=selected;ensemble=null;
+    if (mode===selected && (values.length || (comparison && selected==='compare'))) return;
+    playing=false;if(comparison)comparison.playing=false;batchSerial++;mode=selected;ensemble=null;
     for (const b of elements.tabs) {
       const active=b.dataset.mode===mode;
       b.classList.toggle('active',active);
@@ -208,6 +277,9 @@
     }
     $('pane-sim').setAttribute('aria-labelledby',`tab-${mode}`);
     const isEnsemble=mode==='ensemble';
+    const isCompare=mode==='compare';
+    $('legacy-display').classList.toggle('hidden',isCompare);
+    $('compare-display').classList.toggle('hidden',!isCompare);
     canvas.classList.toggle('hidden',isEnsemble);
     elements.placeholder.classList.toggle('hidden',!isEnsemble);
     elements.simControls.classList.toggle('hidden',isEnsemble);
@@ -219,7 +291,8 @@
     elements.chartExplanation.textContent=isEnsemble?'Average over independently generated single-seed histories.':mode==='seed'?'One realization. A single seed can die even when p is above the threshold.':'Fraction of infected sites, starting from all sites infected.';
     if(isEnsemble){
       values=[]; updateProgress(0,Number(elements.trials.value));updateStats();renderChart();
-    } else {startSimulation(false);}
+    } else if(isCompare) { startComparison(false); }
+    else {startSimulation(false);}
     updateQueryString();
   }
   function updateProbability(value) {
@@ -229,11 +302,12 @@
     if(mode==='ensemble'){
       batchSerial++;ensemble=null;elements.ensembleRun.disabled=false;elements.ensembleCancel.disabled=true;
       values=[];updateProgress(0,Number(elements.trials.value));updateStats();renderChart();
-    } else startSimulation(playing);
+    } else if(mode==='compare')startComparison(comparison?.playing ?? false);
+    else startSimulation(playing);
   }
   function updateQueryString() {
     const url=new URL(window.location.href);url.searchParams.set('p',p.toFixed(4));url.searchParams.set('mode',mode);
-    try { window.history.replaceState(null,'',url.pathname+url.search+url.hash); } catch (_) { /* local file */ }
+    try { window.history.replaceState(null,'',url.pathname+url.search+url.hash); } catch (_) { /* local file: links need not be stored */ }
   }
   function updateProgress(done,total) {
     const frac=total?Math.min(1,done/total):0;
@@ -349,18 +423,110 @@
     const last=entries[entries.length-1];
     if(last){cg.fillStyle='#ff7669';cg.beginPath();cg.arc(fx(last.x),fy(last.y),4,0,Math.PI*2);cg.fill();}
   }
+
+  // Side-by-side visualization: two independent Markov histories, shared p and time.
+  const compareSeedCanvas=$('compare-seed'),compareFullCanvas=$('compare-full');
+  const csg=compareSeedCanvas.getContext('2d',{alpha:false}),cfg=compareFullCanvas.getContext('2d',{alpha:false});
+  const comparePlot=$('compare-plot'),cpg=comparePlot.getContext('2d');
+  const seedInk='#ff7669',fullInk='#70d5b2';
+  function initCompareRaster(ctx,ink,a) {
+    ctx.fillStyle=rasterBack;ctx.fillRect(0,0,W,T+1);
+    ctx.fillStyle=ink;for(let x=0;x<W;x++) if(a[x])ctx.fillRect(x,0,1,1);
+  }
+  function compareRasterRow(ctx,ink,a,y){
+    ctx.fillStyle=ink;for(let x=0;x<W;x++)if(a[x])ctx.fillRect(x,y,1,1);
+  }
+  function startComparison(autoplay=false){
+    const seedA=new Uint8Array(W),seedB=new Uint8Array(W),fullA=new Uint8Array(W),fullB=new Uint8Array(W);
+    seedA[(W-1)/2]=1;fullA.fill(1);
+    comparison={seedA,seedB,fullA,fullB,seedCount:1,fullCount:W,t:0,
+      seedDensity:[1/W],fullDensity:[1],seedRng:mulberry32((runSeed^0x75bcd15d)>>>0),
+      fullRng:mulberry32((runSeed^0x98a27cc3)>>>0),
+      playing:autoplay,lastFrame:0,elapsed:0};
+    initCompareRaster(csg,seedInk,seedA);initCompareRaster(cfg,fullInk,fullA);
+    updateCompare();drawCompareChart();
+  }
+  function stepComparison(){
+    const c=comparison;if(!c||c.t>=T)return;
+    if(c.seedCount>0){
+      c.seedCount=stepInto(c.seedA,c.seedB,p,c.seedRng);
+      [c.seedA,c.seedB]=[c.seedB,c.seedA];
+    }
+    if(c.fullCount>0){
+      c.fullCount=stepInto(c.fullA,c.fullB,p,c.fullRng);
+      [c.fullA,c.fullB]=[c.fullB,c.fullA];
+    }
+    c.t++;
+    compareRasterRow(csg,seedInk,c.seedA,c.t);
+    compareRasterRow(cfg,fullInk,c.fullA,c.t);
+    c.seedDensity.push(c.seedCount/W);c.fullDensity.push(c.fullCount/W);
+    if(c.t>=T)c.playing=false;
+    updateCompare();drawCompareChart();
+  }
+  function updateCompare(){
+    const c=comparison;if(!c)return;
+    $('compare-time').textContent=`${c.t} / ${T}`;
+    $('compare-seed-count').textContent=String(c.seedCount);
+    $('compare-seed-state').textContent=c.seedCount ? 'ALIVE' : 'EXTINCT';
+    $('compare-seed-state').className=c.seedCount ? 'alive' : 'absorbed';
+    $('compare-full-density').textContent=`${(100*c.fullCount/W).toFixed(1)}%`;
+    $('compare-full-state').textContent=c.fullCount ? 'ACTIVE' : 'ABSORBED';
+    $('compare-full-state').className=c.fullCount ? 'alive' : 'absorbed';
+    $('compare-play').textContent=c.playing?'Ⅱ Pause both':(c.t>=T?'↻ Replay both':'▶ Play both');
+    const burnIn=50;
+    if(c.t<burnIn+20) $('compare-average').textContent='— (after equilibration)';
+    else {
+      const latest=c.fullDensity.slice(Math.max(burnIn,c.t-29),c.t+1);
+      const avg=latest.reduce((s,v)=>s+v,0)/latest.length;
+      $('compare-average').textContent=`${avg.toFixed(3)} (last ${latest.length} generations)`;
+    }
+  }
+  function drawCompareChart(){
+    const c=comparison;if(!c)return;
+    const w=comparePlot.width,h=comparePlot.height;
+    cpg.fillStyle='#112437';cpg.fillRect(0,0,w,h);
+    const left=64,right=21,top=22,bottom=43,dw=w-left-right,dh=h-top-bottom;
+    const fx=t=>left+dw*t/T,fy=v=>top+dh*(1-v);
+    cpg.font='12px system-ui, sans-serif';cpg.lineWidth=1;
+    for(let k=0;k<=4;k++){
+      const v=k/4,y=fy(v);
+      cpg.strokeStyle='#2d495d';cpg.beginPath();cpg.moveTo(left,y);cpg.lineTo(w-right,y);cpg.stroke();
+      cpg.fillStyle='#96b1bf';cpg.textAlign='right';cpg.fillText(v.toFixed(2),left-12,y+4);
+    }
+    for(const tt of [0,40,80,120,160,190]){
+      const x=fx(tt);cpg.strokeStyle='#20394b';cpg.beginPath();cpg.moveTo(x,top);cpg.lineTo(x,top+dh);cpg.stroke();
+      cpg.fillStyle='#96b1bf';cpg.textAlign='center';cpg.fillText(tt,x,h-bottom+19);
+    }
+    cpg.fillStyle='#96b1bf';cpg.textAlign='center';cpg.fillText('generation t',left+dw/2,h-8);
+    cpg.save();cpg.translate(18,top+dh/2);cpg.rotate(-Math.PI/2);cpg.fillText('infected fraction',0,0);cpg.restore();
+    for(const [arr,color] of [[c.seedDensity,seedInk],[c.fullDensity,fullInk]]){
+      cpg.strokeStyle=color;cpg.lineWidth=2.6;cpg.lineJoin='round';cpg.beginPath();
+      arr.forEach((v,t)=>{if(!t)cpg.moveTo(fx(t),fy(v));else cpg.lineTo(fx(t),fy(v));});cpg.stroke();
+      const end=arr.length-1;cpg.fillStyle=color;cpg.beginPath();cpg.arc(fx(end),fy(arr[end]),4,0,Math.PI*2);cpg.fill();
+    }
+  }
+
   function onFrame(timestamp) {
-    if(playing&&mode!=='ensemble') {
+    if(mode==='compare' && comparison && comparison.playing){
+      const c=comparison;if(!c.lastFrame)c.lastFrame=timestamp;
+      c.elapsed+=Math.min((timestamp-c.lastFrame)/1000,.1)*speed;c.lastFrame=timestamp;
+      const count=Math.min(22,Math.floor(c.elapsed));
+      for(let i=0;i<count;i++){stepComparison();c.elapsed-=1;if(!c.playing)break;}
+    } else if(playing&&mode!=='ensemble'&&mode!=='compare') {
       if(!prevTime)prevTime=timestamp;
       timeDebt+=Math.min((timestamp-prevTime)/1000,.1)*speed;
       prevTime=timestamp;
       const toAdvance=Math.min(22,Math.floor(timeDebt));
       for(let k=0;k<toAdvance;k++) {simulateOne();timeDebt-=1;if(!playing)break;}
-    } else {prevTime=0;timeDebt=0;}
+    } else {prevTime=0;timeDebt=0;if(comparison){comparison.lastFrame=0;comparison.elapsed=0;}}
     requestAnimationFrame(onFrame);
   }
   // Interface wiring.
   for(const tab of elements.tabs)tab.addEventListener('click',()=>setMode(tab.dataset.mode));
+  $('compare-play').addEventListener('click',()=>{if(!comparison || comparison.t>=T){startComparison(true);return;}comparison.playing=!comparison.playing;comparison.lastFrame=0;comparison.elapsed=0;updateCompare();});
+  $('compare-step').addEventListener('click',()=>{comparison.playing=false;stepComparison();updateCompare();});
+  $('compare-restart').addEventListener('click',()=>startComparison(false));
+  $('compare-random').addEventListener('click',()=>{runSeed=newRandomSeed();startComparison(comparison?.playing??false);});
   elements.p.addEventListener('input',ev=>updateProbability(ev.target.value));
   document.querySelectorAll('[data-p]').forEach(el=>el.addEventListener('click',()=>updateProbability(el.dataset.p)));
   elements.speed.addEventListener('input',ev=>{speed=Number(ev.target.value);elements.speedOut.textContent=String(speed);});
@@ -388,13 +554,14 @@
   document.addEventListener('keydown',e=>{
     if(e.target instanceof HTMLElement && ['INPUT','TEXTAREA','SELECT','BUTTON'].includes(e.target.tagName))return;
     if(mode==='ensemble')return;
-    if(e.code==='Space'){e.preventDefault();elements.play.click();}
-    if(e.code==='ArrowRight'){e.preventDefault();elements.step.click();}
-    if(e.key.toLowerCase()==='r'){e.preventDefault();elements.restart.click();}
+    const compareMode=mode==='compare';
+    if(e.code==='Space'){e.preventDefault();$(compareMode?'compare-play':'play').click();}
+    if(e.code==='ArrowRight'){e.preventDefault();$(compareMode?'compare-step':'step').click();}
+    if(e.key.toLowerCase()==='r'){e.preventDefault();$(compareMode?'compare-restart':'restart').click();}
   });
   displayProbability();
   setMode(mode==='seed'?'full':'seed'); // Force a complete first render in all entry modes.
-  setMode(['seed','full','ensemble'].includes(params.get('mode'))?params.get('mode'):'seed');
+  setMode(['seed','full','ensemble','compare'].includes(params.get('mode'))?params.get('mode'):'compare');
   requestAnimationFrame(onFrame);
 })();
 
