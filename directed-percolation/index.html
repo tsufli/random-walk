@@ -81,14 +81,14 @@
          <div id="legacy-display" class="hidden">
           <div class="screen-head"><div class="screen-title"><span class="mini-indicator"></span><span id="screen-title">SPACETIME / SINGLE-SEED GROWTH</span></div><span id="regime" class="regime critical">NEAR CRITICAL</span></div>
           <div class="screen" id="screen-wrap">
-            <canvas id="spacetime" width="401" height="801" role="img" aria-label="Space time diagram of the infected sites"></canvas>
+            <canvas id="spacetime" width="401" height="1201" role="img" aria-label="Space time diagram of the infected sites"></canvas>
             <div id="ensemble-placeholder" class="ensemble-placeholder hidden"><div class="large-stats">P<sub>survival</sub>(t)</div><p>Run independent outbreaks from the same initial seed to estimate a survival probability instead of relying on one history.</p><div class="progress-rail"><div id="progress-bar" class="progress-bar"></div></div><span id="progress-label">Ready for an ensemble of runs</span></div>
           </div>
           <div class="ruler"><span>← POSITION x →</span><span>TIME t ↓</span></div>
           <div id="sim-controls" class="transport"><button class="primary" id="play">▶ Play</button><button id="step">Step +1</button><button id="restart">↻ Restart</button><button id="new-seed">New randomness</button><span class="keyboard-tip">SPACE play/pause · → step · R restart</span></div>
           <div id="ensemble-controls" class="transport hidden"><button class="primary" id="run-ensemble">▶ Run outbreaks</button><button id="cancel-ensemble" disabled>Cancel</button><span class="keyboard-tip">Each outbreak begins with one infected individual.</span></div>
           <div class="stats-row" aria-live="polite">
-            <div class="metric"><span>TIME STEP</span><strong id="time-stat">0 / 800</strong></div>
+            <div class="metric"><span>TIME STEP</span><strong id="time-stat">0 / 1200</strong></div>
             <div class="metric"><span id="active-label">ACTIVE SITES</span><strong id="active-stat">1</strong></div>
             <div class="metric"><span id="state-label">OUTBREAK STATUS</span><strong id="state-stat">ALIVE</strong></div>
           </div>
@@ -103,20 +103,20 @@
            <div class="compare-grid">
              <article class="compare-card">
                <div class="compare-card-header"><span class="compare-number">01</span><div><h4>Single infected seed</h4><p>One site at x = 200 · watch the outbreak spread</p></div></div>
-               <div class="compare-raster-view" id="compare-seed-view" tabindex="0" aria-label="Scrollable space-time history for the seed"><canvas class="compare-raster" id="compare-seed" width="401" height="801" role="img" aria-label="Space-time growth from one infected seed"></canvas></div>
+               <div class="compare-raster-view" id="compare-seed-view" tabindex="0" aria-label="Scrollable space-time history for the seed"><canvas class="compare-raster" id="compare-seed" width="401" height="1201" role="img" aria-label="Space-time growth from one infected seed"></canvas></div>
                <div class="compare-foot"><span>Infected now <strong id="compare-seed-count">1</strong></span><span id="compare-seed-state" class="alive">ALIVE</span></div>
              </article>
              <article class="compare-card">
                <div class="compare-card-header"><span class="compare-number">02</span><div><h4>Initially fully infected</h4><p>All sites infected at t = 0 · watch density relax</p></div></div>
-               <div class="compare-raster-view" id="compare-full-view" tabindex="0" aria-label="Scrollable space-time history for the fully infected lattice"><canvas class="compare-raster" id="compare-full" width="401" height="801" role="img" aria-label="Space-time evolution from a fully infected lattice"></canvas></div>
+               <div class="compare-raster-view" id="compare-full-view" tabindex="0" aria-label="Scrollable space-time history for the fully infected lattice"><canvas class="compare-raster" id="compare-full" width="401" height="1201" role="img" aria-label="Space-time evolution from a fully infected lattice"></canvas></div>
                <div class="compare-foot"><span>Infected fraction <strong id="compare-full-density">100.0%</strong></span><span id="compare-full-state" class="alive">ACTIVE</span></div>
              </article>
            </div>
-           <div class="compare-axis"><span>← POSITION x →</span><span>TIME t ↓ · 800 GENERATIONS · SCROLL TO INSPECT FULL HISTORY</span></div>
+           <div class="compare-axis"><span>← POSITION x →</span><span>TIME t ↓ · 1200 GENERATIONS · SCROLL TO INSPECT FULL HISTORY</span></div>
            <div class="transport compare-actions" aria-label="Synchronized controls">
              <button id="compare-play" class="primary">▶ Play both</button><button id="compare-step">Step both +1</button><button id="compare-restart">↻ Restart</button><button id="compare-random">New realizations</button>
            </div>
-           <div class="compare-overview"><span>SYNCHRONIZED GENERATION</span><output id="compare-time">0 / 800</output></div>
+           <div class="compare-overview"><span>SYNCHRONIZED GENERATION</span><output id="compare-time">0 / 1200</output></div>
            <div class="chart-panel compare-chart"><div class="chart-head"><div><span class="chart-eyebrow">MEASURED DENSITIES · EACH SINGLE REALIZATION</span><h3>Global infected fraction ρ(t)</h3></div></div>
              <canvas id="compare-plot" width="900" height="288" role="img" aria-label="Comparison of infected density from the seed and fully infected lattice"></canvas>
              <div class="compare-legend"><span><i style="background:#ff7669"></i>Seed: N(t) / 401</span><span><i style="background:#70d5b2"></i>Initially fully infected: ρ(t)</span></div>
@@ -144,7 +144,7 @@
     <div class="theory-layout"><article class="theory-card"><p class="eyebrow">ORDER PARAMETER</p><h3>Stationary infected density</h3><p>From a fully infected initial condition, the order parameter in the thermodynamic limit is</p><div class="formula">ρ<sub>st</sub> = lim<sub>t→∞</sub> lim<sub>L→∞</sub> ⟨(1/L) ∑<sub>i</sub> n<sub>i</sub>(t)⟩</div><p>In the active phase, <strong>ρ<sub>st</sub> ∝ (p − p<sub>c</sub>)<sup>β</sup></strong> with <strong>β ≈ 0.2765</strong>. Limits matter: a finite stochastic system eventually absorbs for 0 &lt; p &lt; 1.</p></article><article class="theory-card"><p class="eyebrow">DYNAMICAL SCALING</p><h3>What happens at criticality?</h3><div class="scaling-lines"><div>ρ(t) ∼ t<sup>−α</sup><span>from a fully active lattice</span></div><div>P<sub>surv</sub>(t) ∼ t<sup>−δ</sup><span>from many single-seed outbreaks</span></div><div>N(t) ∼ t<sup>θ</sup><span>mean count, including extinct runs</span></div></div><p>In 1+1D: <strong>α ≈ δ ≈ 0.1595</strong>, <strong>θ ≈ 0.3137</strong>. The log–log plot overlays a theoretical slope when close to <em>p<sub>c</sub></em>.</p></article></div>
     <div class="caveat"><span>IMPORTANT CAVEAT</span><p>“Active phase” means survival is possible in the <em>infinite</em> system, not guaranteed in an individual realization. Finite size, limited time and statistical noise can obscure a sharp transition. This is a minimal epidemic model with one-generation infectiousness, not a realistic model of human epidemics.</p></div>
   </section>
-  <section id="references" class="references"><h2>For the talk</h2><p>Background and references: <a href="https://doi.org/10.1016/j.aop.2004.09.011" target="_blank" rel="noopener noreferrer">Janssen & Täuber, field-theory review</a>; <a href="https://arxiv.org/abs/cond-mat/0001070" target="_blank" rel="noopener noreferrer">Hinrichsen, nonequilibrium phase transitions</a>; <a href="https://doi.org/10.1103/PhysRevB.33.1982" target="_blank" rel="noopener noreferrer">Essam, Guttmann & De'Bell, directed-bond threshold</a>. The bond threshold and 1+1D exponents quoted here are numerical results.</p><p class="footer-note">Pure client-side simulation · independent random numbers per directed bond · periodic spatial boundaries · 401 sites × 801 time slices (800 generations) · no accounts, no server.</p></section>
+  <section id="references" class="references"><h2>For the talk</h2><p>Background and references: <a href="https://doi.org/10.1016/j.aop.2004.09.011" target="_blank" rel="noopener noreferrer">Janssen & Täuber, field-theory review</a>; <a href="https://arxiv.org/abs/cond-mat/0001070" target="_blank" rel="noopener noreferrer">Hinrichsen, nonequilibrium phase transitions</a>; <a href="https://doi.org/10.1103/PhysRevB.33.1982" target="_blank" rel="noopener noreferrer">Essam, Guttmann & De'Bell, directed-bond threshold</a>. The bond threshold and 1+1D exponents quoted here are numerical results.</p><p class="footer-note">Pure client-side simulation · independent random numbers per directed bond · periodic spatial boundaries · 401 sites × 1201 time slices (1200 generations) · no accounts, no server.</p></section>
 </main>
 <footer><span>DIRECTED PERCOLATION / INTERACTIVE LAB</span><a href="#experiment">Back to the experiment ↑</a></footer>
 <script>
@@ -153,7 +153,7 @@
    No spontaneous infections. Designed to run locally with no build tooling. */
 (() => {
   'use strict';
-  const W = 401, T = 800, PC = 0.644700185;
+  const W = 401, T = 1200, PC = 0.644700185;
   const $ = id => document.getElementById(id);
   const canvas = $('spacetime'), g = canvas.getContext('2d', {alpha:false});
   const plot = $('timeseries'), cg = plot.getContext('2d');
@@ -267,7 +267,7 @@
     elements.time.textContent=mode==='ensemble'?`${T} generations`:`${t} / ${T}`;
     if(mode==='ensemble') {
       elements.activeLabel.textContent='COMPLETED RUNS';
-      elements.stateLabel.textContent='SURVIVAL AT t = 800';
+      elements.stateLabel.textContent='SURVIVAL AT t = 1200';
       elements.count.textContent=ensemble?ensemble.done.toLocaleString():'0';
       let total=ensemble?ensemble.done:0;
       elements.state.textContent=total?(100*ensemble.survivors[T]/total).toFixed(1)+'%':'—';
@@ -393,7 +393,7 @@
     const fx=x=>pad.left+dw*(log?Math.log(Math.max(1,x))/Math.log(T):x/T);
     const fy=y=>pad.top+dh*(1-(log?(Math.log(y)-Math.log(lo))/(Math.log(hi)-Math.log(lo)):(y-lo)/(hi-lo)));
     // Axes and guides.
-    const tickX=log?[1,2,5,10,20,50,100,200,500,800]:[0,100,200,300,400,500,600,700,800];
+    const tickX=log?[1,2,5,10,20,50,100,200,500,1000,1200]:[0,200,400,600,800,1000,1200];
     for(let j=0;j<5;j++){
       const y=pad.top+j*dh/4;
       cg.strokeStyle='#294255';cg.beginPath();cg.moveTo(pad.left,y);cg.lineTo(w-pad.right,y);cg.stroke();
@@ -520,7 +520,7 @@
       cpg.strokeStyle='#2d495d';cpg.beginPath();cpg.moveTo(left,y);cpg.lineTo(w-right,y);cpg.stroke();
       cpg.fillStyle='#96b1bf';cpg.textAlign='right';cpg.fillText(v.toFixed(2),left-12,y+4);
     }
-    for(const tt of [0,100,200,300,400,500,600,700,800]){
+    for(const tt of [0,200,400,600,800,1000,1200]){
       const x=fx(tt);cpg.strokeStyle='#20394b';cpg.beginPath();cpg.moveTo(x,top);cpg.lineTo(x,top+dh);cpg.stroke();
       cpg.fillStyle='#96b1bf';cpg.textAlign='center';cpg.fillText(tt,x,h-bottom+19);
     }
